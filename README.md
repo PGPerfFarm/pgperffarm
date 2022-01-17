@@ -1,107 +1,94 @@
-# PostgreSQL Performance Farm
+# PostgreSQL Performance Farm Server Side
 
-This repository contains the code for the PostgreSQL Performance Farm, aiming to collect PostgreSQL performance data through a Python script, outputting results on a JSON file. Results are then being sent the REST API and can be browsed through a Website.
+This document is about the Server Side of Performance Farm. It contains descriptions about the REST API and the Website.
 
-For detailed explanations about functioning of the script, check the documentation file in `docs/documentation.md`.
-
-**The works done for GSoC are in the `gsoc` branches and the detailed descriptions are in `docs/report_year.md`.**
+The REST API receives benchmark results from the Client and provides data for the Website. It is built with Django and it uses a DB for storing past benchmark results and machine system information. The source code is in the `rest_api` directory. The Website shows lists of machines, runs, and benchmark results and also visualizes benchmark result trends. It only uses vanilla Javascript. The source code is in the `frontend` directory.
 
 
 
-## Structure
-
-### Client
-
-The Client is a Python script that clones the PostgreSQL source code from a specific branch and creates a temporary PostgreSQL cluster. Then runs pgbench and collect the results and finally uploads the results to the API server. The source code is in the `client` directory.
-
-### REST API
-
-The REST API receives benchmark results from the Client and provides data for the Website. It is built with Django and it uses a DB for storing past benchmark results and machine system information. The source code is in the `rest_api` directory.
-
-### Website
-
-The Website shows lists of machines, runs, and benchmark results and also visualizes benchmark result trends. It only uses vanilla Javascript. The source code is in the `frontend` directory.
-
-
-
-## Client
-
-This document is about the Performance Farm Client.
-
-The descriptions about the server side (REST API and Website) is available in `README.server.md`.
+## REST API
 
 ### Requirements
 
-The Client can be run in macOS or any Linux based distribution using Python 3.6 (or later).
+The API relies on Django. Since it needs a specific Django version compliant with the Postgres infrastructure, it is advised to run the API in a virtual environment.
 
-Below are the system requirements.
+ The additional packages are:
 
-- collectd 5.9 (or later)
-- bison 2.3 (or later)
-- flex 2.5 (or later)
-- zlib1g-dev
-- libreadline-dev
+* Django 3.2
+* requests
+* urllib3
+* psycopg2
+* pycryptodomex
 
-It is tested on PostgreSQL 11, 12, 13, and 14.
+More information about requirements file and installation script can be found in the installation instructions below.
 
 ### Installation
 
-The Client code can work without virtual environment, yet requires the installation of a few additional packages. Remember not to run as root!
+```bash
+$ cd rest_api
+```
+
+Set up and activate Python `virtualenv`
 
 ```bash
-$ cd client
+$ python3 -m venv /path/to/venv
+$ source /path/to/venv/bin/activate
+```
+
+Install the required modules.
+
+```bash
 $ pip3 install -r requirements.txt
 ```
 
-Next, copy `settings.py` and edit the `settings_local.py` file to fit your needs.
-
-The machine `secret` is obtained registering the machine in the website, therefore each test result will belong to the machine with the secret specified in the settings file.
-
-Specifically, it is possible to set:
-
-* Whether to test locally or upload results to the API
-* Whether to call `git pull` at every execution
-* Path in which to clone, install and collect output (should have non-superuser access)
-* Postgres configuration
-* Database name for PgBench (must exist)
-* PgBench configuration or set of configurations (two of the same configurations are allowed, as long as all the parameters are integers and clients are arrays)
-
-After setting up, run the Client script
+Next, create a `rest_api/settings_local.py` file:
 
 ```bash
-$ python3 perffarm-client.py
+$ cp rest_api/settings_local.py.in rest_api/settings_local.py
 ```
 
-The Client script clones and runs tests on each of the branches specified above, and uploads them automatically after each iteration is complete if the appropriate flag is set.
+Edit the file and change the database configuration and other settings to suit your environment. Make sure you create the required database and user account on your PostgreSQL server.
 
-If mistakes occur, the \$PGDATA directory is removed and it should be safe to re-run again. However, if there are still problems, it is advised to just remove the whole ​\$BASE_PATH.
-
-Note that there may be issues with directories, since each system has its own defaults and permissions. If you encounter any problem, feel free to open an issue.
-
-### Uploading
-
-These steps are needed to upload benchmark results to the REST API.
-
-Login using PostgreSQL community login to the Performance Farm website.
-
-Go to your profile page and create a machine and copy the machine secret and paste it in the `settings_local.py` and set `AUTOMATIC_UPLOAD` to True.
-
-After the machine gets approved, you will be able to upload benchmark results.
-
-
-### Automation
-
-To set up automatic execution of the Client, it is advised to create a cron job for it.
+Finally, synchronise the database and load the data:
 
 ```bash
-$ crontab -e
+$ python3 manage.py makemigrations
+$ python3 manage.py migrate
+$ python3 manage.py loaddata initial_data.json
 ```
 
-Below is an example crontab configuration that executes the Client every 2 hours. The username should be the same as $PGUSER.
+Additionally, to create an admin local account, run:
 
-```
-USER=username
-0 */2 * * * python3 /path/to/pgperffarm/client/perffarm-client.py >> /path/to/perffarm.log 2>&1
+```bash
+$ python3 manage.py createsuperuser
 ```
 
-A reasonable interval for the cron job would be 2-6 hours, roughly as often as the MASTER branch is being updated. 
+To run the server for testing, run the following command and point a browser at the URL shown:
+
+```bash
+$ python3 manage.py runserver
+```
+
+You should see the index page of the application. To log in, go to `/admin`.
+
+The API also supports authentication from the Postgres community infrastructure, however it has not been tied to the official website yet; at the moment it is possible to test with pgweb local servers.
+
+
+
+## Website
+
+### Requirements
+
+The Website is built with vanilla Javascipt. No additional package install is required.
+
+Only one external library is being used inside the code. D3.js is being used for drawing the trend charts. It is being loaded from [Google Hosted Libraries](https://developers.google.com/speed/libraries#d3.js).
+
+### Installation
+
+Create `scripts/endpoints.js` and then write the REST API's base url.
+
+```bash
+$ cp scripts/endpoints.js.in scripts/endpoints.js
+```
+
+Because the Website's code only consists of html, css, and js files, it can be directly hosted using a web server.
