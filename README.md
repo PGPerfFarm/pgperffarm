@@ -2,7 +2,7 @@
 
 This repository contains the code for the PostgreSQL Performance Farm, aiming to collect PostgreSQL performance data through a Python script, outputting results on a JSON file. Results are then being sent the REST API and can be browsed through a Website.
 
-For detailed explanations about functioning of the script, check the documentation file in `docs/documentation.md`.
+For detailed explanations about functioning of the script, check the documentation file in `docs/client.md`.
 
 
 
