@@ -4,6 +4,10 @@ import multiprocessing
 # global configuration
 UPDATE = True
 AUTOMATIC_UPLOAD = False
+BASIC_AUTH = False
+# username and password for the basic authentication
+USERNAME = 'username'
+PASSWORD = 'password'
 
 # default url: master branch
 GIT_URL = 'https://github.com/postgres/postgres.git'

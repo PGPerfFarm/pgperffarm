@@ -3,8 +3,8 @@
 import json
 import requests
 import os
-
 import folders
+from settings_local import BASIC_AUTH, USERNAME, PASSWORD
 
 def byteify(input):
     if isinstance(input, dict):
@@ -22,7 +22,13 @@ def http_post(url, data, token):
     post.append(postdata)
 
     headers = {'Content-Type': 'application/json; charset=utf-8', 'Authorization': token}
-    r = requests.post(url.encode('utf-8'), data=json.dumps(post).encode('utf-8'), headers=headers)
+    # check if using basic auth, if so add the auth details.
+    if BASIC_AUTH:
+        r = requests.post(url.encode('utf-8'), data=json.dumps(post).encode('utf-8'), headers=headers,
+                          auth=(USERNAME, PASSWORD))
+    else:
+        r = requests.post(url.encode('utf-8'), data=json.dumps(post).encode('utf-8'), headers=headers)
+
 
 def upload(api_url, results_directory, token):
 
