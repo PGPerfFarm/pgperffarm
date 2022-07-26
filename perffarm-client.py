@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import json
 import os
 import git
@@ -21,258 +20,265 @@ from utils.cluster import PgCluster
 from utils.logging import log
 from utils.upload import upload
 
-from settings_local import * 
+from settings_local import *
 from branches import *
 
 import folders
 from path import create_path
-
+from pgtpch import tpch_runner
 
 if __name__ == '__main__':
 
-	def run(branch_name, BRANCH_PATH):
-		
-		with FileLock('.lock') as lock:
+    def run(branch_name, BRANCH_PATH):
 
-			git_pull_runtime = None
-			git_clone_runtime = None
+        with FileLock('.lock') as lock:
 
-			build_runtime = None
-			install_runtime = None
-			configure_runtime = None
+            git_pull_runtime = None
+            git_clone_runtime = None
 
-			run_start_time = None
-			run_end_time = None
+            build_runtime = None
+            install_runtime = None
+            configure_runtime = None
 
-			timezone = tz.gettz(time.tzname[0])
+            run_start_time = None
+            run_end_time = None
 
-			# run received time
-			run_received_time = datetime.now(timezone)
+            timezone = tz.gettz(time.tzname[0])
 
-			log("Starting client for branch '%s'..." % (branch_name, ))
+            # run received time
+            run_received_time = datetime.now(timezone)
 
-			# checking for local installation
-			if (os.path.exists(folders.REPOSITORY_PATH)):
+            log("Starting client for branch '%s'..." % (branch_name,))
 
-				# an existing installation has been found
-				# avoid rebuilding and reinstalling
+            # checking for local installation
+            if (os.path.exists(folders.REPOSITORY_PATH)):
 
-				# cleaning socket path
-				if (os.path.exists(folders.SOCKET_PATH)):
-					shutil.rmtree(folders.SOCKET_PATH)
-					os.mkdir(folders.SOCKET_PATH)
+                # an existing installation has been found
+                # avoid rebuilding and reinstalling
 
-				# cleaning log path
-				if (os.path.exists(folders.LOG_PATH)):
-					shutil.rmtree(folders.LOG_PATH)
-					os.mkdir(folders.LOG_PATH)
+                # cleaning socket path
+                if (os.path.exists(folders.SOCKET_PATH)):
+                    shutil.rmtree(folders.SOCKET_PATH)
+                    os.mkdir(folders.SOCKET_PATH)
 
-				# cleaning output path
-				if (os.path.exists(folders.OUTPUT_PATH)):
-					shutil.rmtree(folders.OUTPUT_PATH)
-					os.mkdir(folders.OUTPUT_PATH)
+                # cleaning log path
+                if (os.path.exists(folders.LOG_PATH)):
+                    shutil.rmtree(folders.LOG_PATH)
+                    os.mkdir(folders.LOG_PATH)
 
-				log("Existing installation found...")
+                # cleaning output path
+                if (os.path.exists(folders.OUTPUT_PATH)):
+                    shutil.rmtree(folders.OUTPUT_PATH)
+                    os.mkdir(folders.OUTPUT_PATH)
 
-				branch = (git.Repo(folders.REPOSITORY_PATH)).active_branch
-				commit = (git.Repo(folders.REPOSITORY_PATH)).head.commit
+                log("Existing installation found...")
 
-				if (UPDATE):
-					# call git pull
-					log("Updating repository...")
-					git_pull_start_time = datetime.now()
-					a = git.Git(folders.REPOSITORY_PATH).pull()
+                branch = (git.Repo(folders.REPOSITORY_PATH)).active_branch
+                commit = (git.Repo(folders.REPOSITORY_PATH)).head.commit
 
-					with open(folders.LOG_PATH + '/git_pull_log.txt', 'w+') as file:
-						file.write(a)
+                if (UPDATE):
+                    # call git pull
+                    log("Updating repository...")
+                    git_pull_start_time = datetime.now()
+                    a = git.Git(folders.REPOSITORY_PATH).pull()
 
-					git_pull_end_time = datetime.now()
-					git_pull_runtime = str(git_pull_end_time - git_pull_start_time)
+                    with open(folders.LOG_PATH + '/git_pull_log.txt', 'w+') as file:
+                        file.write(a)
 
-					latest_branch = (git.Repo(folders.REPOSITORY_PATH)).active_branch
-					latest_commit = (git.Repo(folders.REPOSITORY_PATH)).head.commit
+                    git_pull_end_time = datetime.now()
+                    git_pull_runtime = str(git_pull_end_time - git_pull_start_time)
 
-					if (latest_commit != commit or latest_branch != branch):
-						log("Rebuilding repository to apply updates...")
+                    latest_branch = (git.Repo(folders.REPOSITORY_PATH)).active_branch
+                    latest_commit = (git.Repo(folders.REPOSITORY_PATH)).head.commit
 
-						if (os.path.exists(folders.BUILD_PATH)):
-							shutil.rmtree(folders.BUILD_PATH)
-						os.mkdir(folders.BUILD_PATH)
+                    if (latest_commit != commit or latest_branch != branch):
+                        log("Rebuilding repository to apply updates...")
 
-						if (os.path.exists(folders.INSTALL_PATH)):
-							shutil.rmtree(folders.INSTALL_PATH)
-						os.mkdir(folders.INSTALL_PATH)
+                        if (os.path.exists(folders.BUILD_PATH)):
+                            shutil.rmtree(folders.BUILD_PATH)
+                        os.mkdir(folders.BUILD_PATH)
 
-						configure_runtime, build_runtime, install_runtime = build()
+                        if (os.path.exists(folders.INSTALL_PATH)):
+                            shutil.rmtree(folders.INSTALL_PATH)
+                        os.mkdir(folders.INSTALL_PATH)
 
-					else:
-						log("Repository is up to date. ")
+                        configure_runtime, build_runtime, install_runtime = build()
 
-			else:
-				# remove build and install path just to be sure
-				if (os.path.exists(folders.BUILD_PATH)):
-					shutil.rmtree(folders.BUILD_PATH)
-				os.mkdir(folders.BUILD_PATH)
+                    else:
+                        log("Repository is up to date. ")
 
-				if (os.path.exists(folders.INSTALL_PATH)):
-					shutil.rmtree(folders.INSTALL_PATH)
-				os.mkdir(folders.INSTALL_PATH)
+            else:
+                # remove build and install path just to be sure
+                if (os.path.exists(folders.BUILD_PATH)):
+                    shutil.rmtree(folders.BUILD_PATH)
+                os.mkdir(folders.BUILD_PATH)
 
-				if (os.path.exists(folders.SOCKET_PATH)):
-					shutil.rmtree(folders.SOCKET_PATH)
-				os.mkdir(folders.SOCKET_PATH)
+                if (os.path.exists(folders.INSTALL_PATH)):
+                    shutil.rmtree(folders.INSTALL_PATH)
+                os.mkdir(folders.INSTALL_PATH)
 
-				if (os.path.exists(folders.LOG_PATH)):
-					shutil.rmtree(folders.LOG_PATH)
-				os.mkdir(folders.LOG_PATH)
+                if (os.path.exists(folders.SOCKET_PATH)):
+                    shutil.rmtree(folders.SOCKET_PATH)
+                os.mkdir(folders.SOCKET_PATH)
 
-				if (os.path.exists(folders.OUTPUT_PATH)):
-					shutil.rmtree(folders.OUTPUT_PATH)
-					os.mkdir(folders.OUTPUT_PATH)
+                if (os.path.exists(folders.LOG_PATH)):
+                    shutil.rmtree(folders.LOG_PATH)
+                os.mkdir(folders.LOG_PATH)
 
-				# and finally, clone
-				log("Cloning repository...")
-				git_clone_start_time = datetime.now()
-
-				try:
-					a = git.Git(BRANCH_PATH).clone(GIT_URL, ['postgresql'], branch=branch_name)
-
-					git_clone_end_time = datetime.now()
-					git_clone_runtime = str(git_clone_end_time - git_clone_start_time)
-
-					# and build
-					configure_runtime, build_runtime, install_runtime = build()
-
-				except Exception as e: # any exception
-					with open(folders.LOG_PATH + '/git_clone_log.txt', 'w+') as file:
-						file.write("git clone log: \n")
-						file.write(e.stderr)
-						log("Error while cloning, check logs.")
-						sys.exit(1)
-
-			# get (or rewrite) current branch and commit
-			# string because it must be JSON serializable
-			repository = git.Repo(folders.REPOSITORY_PATH)
-			branch = str(repository.active_branch)
-			commit = str(repository.head.commit)
-
-			# build and start a postgres cluster
-
-			try:
-				cluster = PgCluster(folders.OUTPUT_PATH, bin_path=folders.BIN_PATH, data_path=folders.DATADIR_PATH)
-
-				# create collectors
-				collectors = MultiCollector()
+                if (os.path.exists(folders.OUTPUT_PATH)):
+                    shutil.rmtree(folders.OUTPUT_PATH)
+                    os.mkdir(folders.OUTPUT_PATH)
 
-				system = os.popen("uname").readlines()[0].split()[0]
+                # and finally, clone
+                log("Cloning repository...")
+                git_clone_start_time = datetime.now()
 
-				collectors.register('system', SystemCollector(folders.OUTPUT_PATH))
+                try:
+                    a = git.Git(BRANCH_PATH).clone(GIT_URL, ['postgresql'], branch=branch_name)
+
+                    git_clone_end_time = datetime.now()
+                    git_clone_runtime = str(git_clone_end_time - git_clone_start_time)
+
+                    # and build
+                    configure_runtime, build_runtime, install_runtime = build()
+
+                except Exception as e:  # any exception
+                    with open(folders.LOG_PATH + '/git_clone_log.txt', 'w+') as file:
+                        file.write("git clone log: \n")
+                        file.write(e.stderr)
+                        log("Error while cloning, check logs.")
+                        sys.exit(1)
+
+            # get (or rewrite) current branch and commit
+            # string because it must be JSON serializable
+            repository = git.Repo(folders.REPOSITORY_PATH)
+            branch = str(repository.active_branch)
+            commit = str(repository.head.commit)
+
+            # build and start a postgres cluster
+
+            try:
+                cluster = PgCluster(folders.OUTPUT_PATH, bin_path=folders.BIN_PATH, data_path=folders.DATADIR_PATH)
+
+                # register one config for each benchmark (should be moved to a config file)
+                POSTGRES_CONFIG['listen_addresses'] = ''
+                POSTGRES_CONFIG['unix_socket_directories'] = folders.SOCKET_PATH
+
+                if MODE == 0 or MODE == 2:
+                    # create collectors
+                    collectors = MultiCollector()
 
-				pg_collector = PostgresCollector(folders.OUTPUT_PATH, dbname=DATABASE_NAME)
-				collectors.register('postgres', pg_collector)
+                    system = os.popen("uname").readlines()[0].split()[0]
 
-				runner = BenchmarkRunner(folders.OUTPUT_PATH, cluster, collectors)
+                    collectors.register('system', SystemCollector(folders.OUTPUT_PATH))
 
-				# register the three tests we currently have
-				runner.register_benchmark('pgbench', PgBench)
+                    pg_collector = PostgresCollector(folders.OUTPUT_PATH, dbname=DATABASE_NAME)
+                    collectors.register('postgres', pg_collector)
 
-				# register one config for each benchmark (should be moved to a config file)
-				POSTGRES_CONFIG['listen_addresses'] = ''
-				POSTGRES_CONFIG['unix_socket_directories'] = folders.SOCKET_PATH
+                    runner = BenchmarkRunner(folders.OUTPUT_PATH, cluster, collectors)
 
-				for config in PGBENCH_CONFIG:
-					config['results_dir'] = folders.OUTPUT_PATH
-				
-					runner.register_config('pgbench-basic', 'pgbench', branch, commit, dbname=DATABASE_NAME, bin_path=folders.BIN_PATH, postgres_config=POSTGRES_CONFIG, **config)
-					
+                    # register the three tests we currently have
+                    runner.register_benchmark('pgbench', PgBench)
 
-				# check configuration and report all issues
-				issues = runner.check()
+                    for config in PGBENCH_CONFIG:
+                        config['results_dir'] = folders.OUTPUT_PATH
 
-				if issues != {}:
-					# print the issues
-					for k in issues:
-						for v in issues[k]:
-							for i in v:
-								print (k, ':', i)
-					raise Exception("Issues in configuration have been found.")
+                        runner.register_config('pgbench-basic', 'pgbench', branch, commit, dbname=DATABASE_NAME,
+                                               bin_path=folders.BIN_PATH, postgres_config=POSTGRES_CONFIG, **config)
 
-				else:
-					run_start_time = datetime.now(timezone)
-					runner.run()
-					run_end_time = datetime.now(timezone)
+                    # check configuration and report all issues
+                    issues = runner.check()
 
-			except Exception as e:
-				log(e)
-				log("An exception occurred. You might find additional details in log files.")
+                    if issues != {}:
+                        # print the issues
+                        for k in issues:
+                            for v in issues[k]:
+                                for i in v:
+                                    print(k, ':', i)
+                        raise Exception("Issues in configuration have been found.")
 
-				if os.path.exists(folders.DATADIR_PATH):
-					shutil.rmtree(folders.DATADIR_PATH)
-				sys.exit(1)
-					
-	
-			# remove the data directory
-			try:
-				cleanup_start_time = datetime.now()
-				if os.path.exists(folders.DATADIR_PATH):
-					shutil.rmtree(folders.DATADIR_PATH)
-				cleanup_end_time = datetime.now()
-				cleanup_runtime = str(cleanup_end_time - cleanup_start_time)
+                    else:
+                        run_start_time = datetime.now(timezone)
+                        runner.run()
+                        run_end_time = datetime.now(timezone)
 
-			except Exception as e: # any exception
-				with open(folders.LOG_PATH + '/cleanup_log.txt', 'w+') as file:
-					file.write(e.stderr)
-					log("Error while cleaning directories, check logs.")
-					sys.exit(1)
+                if MODE == 1:
+                    cluster.start(config=POSTGRES_CONFIG)
 
+                if MODE == 1 or MODE == 2:
+                    results_dir = os.path.join(BRANCH_PATH, 'tpch_result')
+                    print(results_dir)
+                    tpch_runner.run_tpch(folders.SOCKET_PATH, 'postgres', results_dir, TPCH_SCALE)
 
-			runtime = {
-				'run_received_time': run_received_time.strftime("%Y-%m-%dT%H:%M:%S%z"),
-				'run_start_time': run_start_time.strftime("%Y-%m-%dT%H:%M:%S%z"), 
-				'run_end_time': run_end_time.strftime("%Y-%m-%dT%H:%M:%S%z"), 
-				'git_clone_runtime': git_clone_runtime,
-				'git_pull_runtime': git_pull_runtime,
-				'configure_runtime': configure_runtime,
-				'build_runtime': build_runtime, 
-				'install_runtime': install_runtime, 
-				'cleanup_runtime': cleanup_runtime
-			}
+            except Exception as e:
+                log(e)
+                log("An exception occurred. You might find additional details in log files.")
 
-			# saving times in a text file
-			with open(folders.LOG_PATH + '/runtime_log.json', 'w+') as file:
-				file.write(json.dumps(runtime, indent=4))
+                if os.path.exists(folders.DATADIR_PATH):
+                    shutil.rmtree(folders.DATADIR_PATH)
+                sys.exit(1)
 
+            # remove the data directory
+            try:
+                cleanup_start_time = datetime.now()
+                if os.path.exists(folders.DATADIR_PATH):
+                    shutil.rmtree(folders.DATADIR_PATH)
+                cleanup_end_time = datetime.now()
+                cleanup_runtime = str(cleanup_end_time - cleanup_start_time)
 
-			if (AUTOMATIC_UPLOAD):
-				upload(API_URL, folders.OUTPUT_PATH, MACHINE_SECRET)
-				log("Run complete. Uploading...")
+            except Exception as e:  # any exception
+                with open(folders.LOG_PATH + '/cleanup_log.txt', 'w+') as file:
+                    file.write(e.stderr)
+                    log("Error while cleaning directories, check logs.")
+                    sys.exit(1)
 
-			else:
-				log("Run complete, check results in '%s'" % (folders.OUTPUT_PATH, ))
+            if MODE == 0 or MODE == 2:
+                runtime = {
+                    'run_received_time': run_received_time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                    'run_start_time': run_start_time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                    'run_end_time': run_end_time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                    'git_clone_runtime': git_clone_runtime,
+                    'git_pull_runtime': git_pull_runtime,
+                    'configure_runtime': configure_runtime,
+                    'build_runtime': build_runtime,
+                    'install_runtime': install_runtime,
+                    'cleanup_runtime': cleanup_runtime
+                }
 
-		return
+                # saving times in a text file
+                with open(folders.LOG_PATH + '/runtime_log.json', 'w+') as file:
+                    file.write(json.dumps(runtime, indent=4))
 
-	# end of function
+                if (AUTOMATIC_UPLOAD):
+                    upload(API_URL, folders.OUTPUT_PATH, MACHINE_SECRET)
+                    log("Run complete. Uploading...")
 
-	# first of all, creating base path
-	if (not (os.path.exists(BASE_PATH))):
-		os.mkdir(BASE_PATH)
+                else:
+                    log("Run complete, check results in '%s'" % (folders.OUTPUT_PATH,))
 
+        return
 
-	for branch in branches:
 
-		folders.init()
+    # end of function
 
-		BRANCH_PATH = os.path.join(BASE_PATH, branch['branch_name'])
+    # first of all, creating base path
+    if (not (os.path.exists(BASE_PATH))):
+        os.mkdir(BASE_PATH)
 
-		if (not (os.path.exists(BRANCH_PATH))):
-			os.mkdir(BRANCH_PATH)
+    for branch in branches:
 
-		# calculate child directories
-		create_path(BRANCH_PATH)
+        folders.init()
 
-		# override HEAD
-		if (branch['branch_name'] == 'HEAD'):
-			branch['branch_name'] = 'master'
+        BRANCH_PATH = os.path.join(BASE_PATH, branch['branch_name'])
 
-		run(branch['branch_name'], BRANCH_PATH)
+        if (not (os.path.exists(BRANCH_PATH))):
+            os.mkdir(BRANCH_PATH)
+
+        # calculate child directories
+        create_path(BRANCH_PATH)
+
+        # override HEAD
+        if (branch['branch_name'] == 'HEAD'):
+            branch['branch_name'] = 'master'
+
+        run(branch['branch_name'], BRANCH_PATH)
