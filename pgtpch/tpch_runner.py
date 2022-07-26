@@ -62,3 +62,33 @@ def run_tpch(host, db_name, results_dir,  scale=1):
         log("could not generate query files")
         exit(1)
     log("created query files in %s" % query_root)
+
+    # load phase
+    result = r.Result("Load")
+    if load.clean_database(host, db_name, TABLES):
+        log("could not clean the database.")
+        exit(1)
+    log("cleaned database %s" % db_name)
+
+    result.startTimer()
+    if load.create_schema(query_root, host, db_name):
+        log("could not create schema.")
+        exit(1)
+    result.setMetric("create_schema: ", result.stopTimer())
+    log("done creating schemas")
+
+    result.startTimer()
+    if load.load_tables(host, db_name, TABLES, data_dir):
+        log("could not load data to tables")
+        exit(1)
+    result.setMetric("load_data", result.stopTimer())
+    log("done loading data to tables")
+
+    result.startTimer()
+    if load.index_tables(query_root, host, db_name):
+        log("could not create indexes for tables")
+        exit(1)
+    result.setMetric("index_tables", result.stopTimer())
+    log("done creating indexes and foreign keys")
+    result.printMetrics()
+    result.saveMetrics(results_dir, "load")
