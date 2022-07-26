@@ -541,3 +541,14 @@ def calc_metrics(results_dir, scale_factor, num_streams):
     res.printMetrics("Metrics")
     res.saveMetrics(results_dir, "metrics")
 
+
+def upload(api_url, results_directory, token):
+    path_url = 'tpch/upload/'
+    url = api_url + path_url
+
+    json_file = results_directory + "/Metric.json"
+    print(json_file)
+    with open(json_file, 'r') as load_f:
+        load_dict = (json.load(load_f, encoding="UTF-8"))
+    print(load_dict)
+    http_post(url, load_dict, token)

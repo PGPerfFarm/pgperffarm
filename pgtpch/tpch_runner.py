@@ -111,3 +111,7 @@ def run_tpch(host, db_name, results_dir,  scale=1):
     log("done performance tests")
     query.calc_metrics(results_dir, scale, num_streams)
 
+    # if AUTOMATIC_UPLOAD:
+    upload_path = os.path.join(results_dir, 'metrics')
+    query.upload(API_URL, upload_path, MACHINE_SECRET)
+    log("Run complete. Uploading...")

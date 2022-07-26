@@ -32,7 +32,7 @@ def http_post(url, data, token):
 
 def upload(api_url, results_directory, token):
 
-    path_url = 'upload/'
+    path_url = 'run/upload/'
     url = api_url + path_url
 
     json_file = results_directory + "/results.json"
