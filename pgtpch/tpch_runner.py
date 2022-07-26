@@ -92,3 +92,22 @@ def run_tpch(host, db_name, results_dir,  scale=1):
     log("done creating indexes and foreign keys")
     result.printMetrics()
     result.saveMetrics(results_dir, "load")
+
+    # query phase
+    verbose = True
+    read_only = False
+    run_timestamp = "run_%s" % time.strftime("%Y%m%d_%H%M%S", time.gmtime())
+    if query.run_power_test(query_root, UPDATE_DIR, DELETE_DIR, GENERATED_QUERY_DIR, results_dir,
+                            host, db_name, run_timestamp, num_streams, verbose, read_only):
+        log("running power tests failed")
+        exit(1)
+
+    # Throughput tests
+    if query.run_throughput_test(query_root, data_dir, UPDATE_DIR, DELETE_DIR, GENERATED_QUERY_DIR,
+                                 results_dir,
+                                 host, db_name, run_timestamp, num_streams, verbose, read_only):
+        log("running throughput tests failed")
+        exit(1)
+    log("done performance tests")
+    query.calc_metrics(results_dir, scale, num_streams)
+
