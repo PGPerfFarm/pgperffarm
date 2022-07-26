@@ -15,10 +15,16 @@ GIT_URL = 'https://github.com/postgres/postgres.git'
 # base path where to clone, install and fetch results
 # parent must exist!
 # also should have non-superuser access
-BASE_PATH = '/tmp/perffarm' 
+BASE_PATH = '/tmp/perffarm'
 
 API_URL = 'http://140.211.168.111:8080/run/'
 MACHINE_SECRET = 'changeme'
+
+# scale factor for tpc-h benchmark
+TPCH_SCALE = 1
+
+# mode for running the client
+MODE = 2  # 0 for only pgbench, 1 for only tpc-h， 2 for both.
 
 POSTGRES_CONFIG = {
     'shared_buffers': '1GB',
@@ -59,6 +65,6 @@ PGBENCH_CONFIG = [
 try:
     from settings_local import *
 except Exception as e:
-    print (sys.stderr, "ERROR: local configuration (settings_local.py) " \
-                         "not found")
+    print(sys.stderr, "ERROR: local configuration (settings_local.py) " \
+                      "not found")
     sys.exit(1)
