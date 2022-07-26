@@ -18,7 +18,8 @@ class CollectdCollector(object):
 
     def __init__(self, outdir, dbname):
         self._outdir = '%s/stats' % outdir
-
+        if not os.path.exists(self._outdir):
+            os.mkdir(self._outdir)
         # Hard code all possible places a packager might install collectd.
         self._env = os.environ
         self._env['PATH'] = ':'.join(['/usr/sbin/', '/sbin/', self._env['PATH']])
