@@ -1,3 +1,4 @@
+import glob
 import json
 import math
 import os
@@ -9,7 +10,7 @@ from pgtpch import pg_instance as pgdb
 from pgtpch import tpch_res as r
 from utils.logging import log
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil import tz
 
 from utils.upload import http_post
@@ -542,12 +543,48 @@ def calc_metrics(results_dir, scale_factor, num_streams):
     res.saveMetrics(results_dir, "metrics")
 
 
+def prepare_result(in_dir, num_streams):
+    try:
+        json_file = os.path.join(in_dir, "metrics" + "/Metric.json")
+        with open(json_file, 'r') as load_f:
+            res_dict = (json.load(load_f, encoding="UTF-8"))
+
+        power_res = os.path.join(in_dir, 'power' + '/Power.json')
+        with open(power_res, 'r') as load_f:
+            tmp_dict = (json.load(load_f, encoding="UTF-8"))
+        power_dict = {}
+        for s, v in tmp_dict.items():
+            if '_query_' in s:
+                k = s[s.index('_query_') + len('_query_'):]
+                power_dict[k] = get_timedelta_in_seconds(v)
+        res_dict['power'] = power_dict
+
+        throughput_dict = {}
+        for i in range(1, num_streams + 1):
+            throughput_res = os.path.join(in_dir, 'throughput' + '/ThroughputQueryStream' + str(i) +'.json')
+            with open(throughput_res, 'r') as load_f:
+                tmp = (json.load(load_f, encoding="UTF-8"))
+            for s, v in tmp.items():
+                k = s[s.index('_query_') + len('_query_'):]
+                v = get_timedelta_in_seconds(v)
+                if k not in throughput_dict:
+                    throughput_dict[k] = v
+                else:
+                    throughput_dict[k] += v
+        for k, v in throughput_dict.items():
+            throughput_dict[k] = v / num_streams
+        res_dict['throughput'] = throughput_dict
+        with open(json_file, 'w') as fp:
+            json.dump(res_dict, fp, indent=4, sort_keys=True)
+    except IOError as e:
+        log("unable to create directory %s. (%s)" % (in_dir, e))
+
+
 def upload(api_url, results_directory, token):
     path_url = 'tpch/upload/'
     url = api_url + path_url
 
     json_file = results_directory + "/Metric.json"
-    print(json_file)
     with open(json_file, 'r') as load_f:
         load_dict = (json.load(load_f, encoding="UTF-8"))
     print(load_dict)
