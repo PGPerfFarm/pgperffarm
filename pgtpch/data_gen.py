@@ -8,7 +8,6 @@ from pgtpch.tpc_folder import *
 
 def remove_final_delimiter(in_dir, out_dir, file_pattern):
     try:
-        print("outdir is %s" % out_dir)
         os.makedirs(out_dir, exist_ok=True)
         for in_fname in glob.glob(os.path.join(in_dir, file_pattern)):
             fname = os.path.basename(in_fname)
@@ -84,11 +83,10 @@ def generate_queries(dbgen_dir, query_root):
     dss_query_path = os.path.join(query_root, 'query_template')
     query_env = os.environ.copy()
     query_env['DSS_QUERY'] = dss_query_path
-    query_gen_path = os.path.join(query_root, 'generated_queries')
-    os.makedirs(query_gen_path, exist_ok=True)
+    os.makedirs(GENERATED_QUERY_DIR, exist_ok=True)
     for i in range(1, 23):
         try:
-            with open(os.path.join(query_gen_path, str(i) + ".sql"), "w") as out_file:
+            with open(os.path.join(GENERATED_QUERY_DIR, str(i) + ".sql"), "w") as out_file:
                 p = subprocess.Popen([os.path.join(".", "qgen"), str(i)],
                                      cwd=dbgen_dir, env=query_env, stdout=out_file)
                 p.communicate()

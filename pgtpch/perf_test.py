@@ -587,5 +587,4 @@ def upload(api_url, results_directory, token):
     json_file = results_directory + "/Metric.json"
     with open(json_file, 'r') as load_f:
         load_dict = (json.load(load_f, encoding="UTF-8"))
-    print(load_dict)
     http_post(url, load_dict, token)

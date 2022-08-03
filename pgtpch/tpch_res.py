@@ -58,6 +58,5 @@ class Result:
         metrics = dict()
         for key, value in self.__metrics__.items():
             metrics[key] = str(value)
-        print(self.__metrics__.items())
         with open(os.path.join(path, self.__title__ + '.json'), 'w') as fp:
             json.dump(metrics, fp, indent=4, sort_keys=True)

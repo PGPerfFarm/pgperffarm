@@ -9,6 +9,7 @@ import pgtpch.perf_test as query
 import pgtpch.tpch_res as r
 from pgtpch.tpc_folder import *
 
+
 def scale_to_num_streams(scale):
     """Converts scale factor to number of streams
     :param scale: scale factor
@@ -47,21 +48,27 @@ def run_tpch(host, db_name, results_dir,  scale=1):
 
     num_streams = scale_to_num_streams(scale)
     run_timestamp = "run_%s" % time.strftime("%Y%m%d_%H%M%S", time.gmtime())
+
     # preprocessing
-    if pre.make_dbgen():
-        log("could not build the dbgen/querygen. Check logs.")
-        exit(1)
-    log("built dbgen from source")
+    if not os.path.exists(OUTPUT_PATH):
+        os.makedirs(OUTPUT_PATH)
 
-    if pre.clean_data(scale, num_streams):
-        log("could not generate data files.")
-        exit(1)
-    log("created data files in %s" % data_dir)
+        if pre.make_dbgen():
+            log("could not build the dbgen/querygen. Check logs.")
+            exit(1)
+        log("built dbgen from source")
 
-    if pre.generate_queries(DBGEN_PATH, query_root):
-        log("could not generate query files")
-        exit(1)
-    log("created query files in %s" % query_root)
+        if pre.clean_data(scale, num_streams):
+            log("could not generate data files.")
+            exit(1)
+        log("created data files in %s" % data_dir)
+
+        if pre.generate_queries(DBGEN_PATH, query_root):
+            log("could not generate query files")
+            exit(1)
+        log("created query files in %s" % query_root)
+    else:
+        log("data files exist for scale %s in %s" % (scale, OUTPUT_PATH))
 
     # load phase
     result = r.Result("Load")
