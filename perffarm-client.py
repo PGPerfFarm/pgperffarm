@@ -207,8 +207,8 @@ if __name__ == '__main__':
 
                 if MODE == 1 or MODE == 2:
                     results_dir = os.path.join(BRANCH_PATH, 'tpch_result')
-                    print(results_dir)
                     tpch_runner.run_tpch(folders.SOCKET_PATH, 'postgres', results_dir, TPCH_SCALE)
+                    tpch_runner.upload_result(results_dir, branch, commit)
 
             except Exception as e:
                 log(e)

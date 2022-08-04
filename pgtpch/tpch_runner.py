@@ -8,6 +8,8 @@ import pgtpch.data_gen as pre
 import pgtpch.perf_test as query
 import pgtpch.tpch_res as r
 from pgtpch.tpc_folder import *
+import json
+from utils.upload import http_post
 
 
 def scale_to_num_streams(scale):
@@ -39,8 +41,7 @@ def scale_to_num_streams(scale):
     return num_streams
 
 
-def run_tpch(host, db_name, results_dir,  scale=1):
-
+def run_tpch(host, db_name, results_dir, scale=1):
     try:
         os.makedirs(BASE_PATH, exist_ok=True)
     except IOError as e:
@@ -118,7 +119,19 @@ def run_tpch(host, db_name, results_dir,  scale=1):
     log("done performance tests")
     query.calc_metrics(results_dir, scale, num_streams)
     query.prepare_result(results_dir, num_streams)
+
+
+def upload_result(results_dir, branch, commit):
     if AUTOMATIC_UPLOAD:
         upload_path = os.path.join(results_dir, 'metrics')
-        query.upload(API_URL, upload_path, MACHINE_SECRET)
+
         log("Run complete. Uploading...")
+        path_url = 'tpch/upload/'
+        url = API_URL + path_url
+
+        json_file = upload_path + "/Metric.json"
+        with open(json_file, 'r') as load_f:
+            load_dict = (json.load(load_f, encoding="UTF-8"))
+        load_dict['branch'] = branch
+        load_dict['commit'] = commit
+        http_post(url, load_dict, MACHINE_SECRET)

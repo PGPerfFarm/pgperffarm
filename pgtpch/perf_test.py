@@ -1,19 +1,15 @@
-import glob
 import json
 import math
 import os
 from itertools import zip_longest
 from multiprocessing import Process, Queue
-
-import folders
 from pgtpch import pg_instance as pgdb
 from pgtpch import tpch_res as r
 from utils.logging import log
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from dateutil import tz
 
-from utils.upload import http_post
 
 POWER = "power"
 THROUGHPUT = "throughput"
@@ -578,13 +574,3 @@ def prepare_result(in_dir, num_streams):
             json.dump(res_dict, fp, indent=4, sort_keys=True)
     except IOError as e:
         log("unable to create directory %s. (%s)" % (in_dir, e))
-
-
-def upload(api_url, results_directory, token):
-    path_url = 'tpch/upload/'
-    url = api_url + path_url
-
-    json_file = results_directory + "/Metric.json"
-    with open(json_file, 'r') as load_f:
-        load_dict = (json.load(load_f, encoding="UTF-8"))
-    http_post(url, load_dict, token)
