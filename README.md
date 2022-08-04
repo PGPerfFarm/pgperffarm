@@ -37,6 +37,8 @@ Next, copy `settings.py` and edit the `settings_local.py` file to fit your needs
 
 The machine `secret` is obtained registering the machine in the website, therefore each test result will belong to the machine with the secret specified in the settings file.
 
+In order to run TPC-H like benchmark, the [TPC-H tool](https://www.tpc.org/tpc_documents_current_versions/download_programs/tools-download-request5.asp?bm_type=TPC-H&bm_vers=3.0.0&mode=CURRENT-ONLY) is needed to be downloaded, unzipped, moved to the project root folder and renamed to `tpc-h`.
+
 Specifically, it is possible to set:
 
 * Whether to test locally or upload results to the API
