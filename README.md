@@ -37,7 +37,7 @@ Next, copy `settings.py` and edit the `settings_local.py` file to fit your needs
 
 The machine `secret` is obtained registering the machine in the website, therefore each test result will belong to the machine with the secret specified in the settings file.
 
-In order to run TPC-H like benchmark, the [TPC-H tool](https://www.tpc.org/tpc_documents_current_versions/download_programs/tools-download-request5.asp?bm_type=TPC-H&bm_vers=3.0.0&mode=CURRENT-ONLY) is needed to be downloaded, unzipped, moved to the project root folder and renamed to `tpc-h`.
+In order to run the TPC-H like benchmark, the [TPC-H tool](https://www.tpc.org/tpc_documents_current_versions/download_programs/tools-download-request5.asp?bm_type=TPC-H&bm_vers=3.0.0&mode=CURRENT-ONLY) is needed to be downloaded, unzipped, moved to the project root folder and renamed to `tpc-h`.
 
 Specifically, it is possible to set:
 
@@ -47,6 +47,7 @@ Specifically, it is possible to set:
 * Postgres configuration
 * Database name for PgBench (must exist)
 * PgBench configuration or set of configurations (two of the same configurations are allowed, as long as all the parameters are integers and clients are arrays)
+* Modes to run the benchmark, running only PgBench, only TPC-H，or both.
 
 After setting up, run the Client script
 
