@@ -134,4 +134,5 @@ def upload_result(results_dir, branch, commit):
             load_dict = (json.load(load_f, encoding="UTF-8"))
         load_dict['branch'] = branch
         load_dict['commit'] = commit
+        load_dict['streams'] = scale_to_num_streams(TPCH_SCALE)
         http_post(url, load_dict, MACHINE_SECRET)
