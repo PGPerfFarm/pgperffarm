@@ -17,14 +17,14 @@ GIT_URL = 'https://github.com/postgres/postgres.git'
 # also should have non-superuser access
 BASE_PATH = '/tmp/perffarm'
 
-API_URL = 'http://140.211.168.111:8080/run/'
+API_URL = 'http://140.211.168.111/'
 MACHINE_SECRET = 'changeme'
 
 # scale factor for tpc-h benchmark
 TPCH_SCALE = 1
 
 # mode for running the client
-MODE = 2  # 0 for only pgbench, 1 for only tpc-h， 2 for both.
+MODE = 0  # 0 for only pgbench, 1 for only tpc-h， 2 for both.
 
 POSTGRES_CONFIG = {
     'shared_buffers': '1GB',

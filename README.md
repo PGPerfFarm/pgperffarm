@@ -37,8 +37,6 @@ Next, copy `settings.py` and edit the `settings_local.py` file to fit your needs
 
 The machine `secret` is obtained registering the machine in the website, therefore each test result will belong to the machine with the secret specified in the settings file.
 
-In order to run the TPC-H like benchmark, the [TPC-H tool](https://www.tpc.org/tpc_documents_current_versions/download_programs/tools-download-request5.asp?bm_type=TPC-H&bm_vers=3.0.0&mode=CURRENT-ONLY) is needed to be downloaded, unzipped, moved to the project root folder and renamed to `tpc-h`.
-
 Specifically, it is possible to set:
 
 * Whether to test locally or upload results to the API
@@ -48,6 +46,29 @@ Specifically, it is possible to set:
 * Database name for PgBench (must exist)
 * PgBench configuration or set of configurations (two of the same configurations are allowed, as long as all the parameters are integers and clients are arrays)
 * Modes to run the benchmark, running only PgBench, only TPC-H，or both.
+
+
+In order to generate the TPC-h data, the [TPC-H tool](https://www.tpc.org/tpc_documents_current_versions/download_programs/tools-download-request5.asp?bm_type=TPC-H&bm_vers=3.0.0&mode=CURRENT-ONLY) is needed to be downloaded, unzipped to the folder `tpch-h` in the project root and renamed the inner folder `TPC-H_Toolsv*` to `TPC-H_Tools`.
+
+And edit some files in the dbgen to suit your system. Taking linux as an example, you need to update the following lines in the makefile:
+```
+CC       = gcc
+DATABASE = POSTGRESQL
+MACHINE  = LINUX
+WORKLOAD = TPCH
+```
+
+And add following lines to `tpcd.h`:
+```c
+#ifdef POSTGRESQL
+#define GEN_QUERY_PLAN  "EXPLAIN"      
+#define START_TRAN      "BEGIN TRANSACTION"
+#define END_TRAN        "COMMIT;"
+#define SET_OUTPUT      ""
+#define SET_ROWCOUNT    "LIMIT %d\n"
+#define SET_DBASE       ""
+#endif /* VECTORWISE */
+```
 
 After setting up, run the Client script
 
