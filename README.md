@@ -2,7 +2,7 @@
 
 This document is about the Server Side of Performance Farm. It contains descriptions about the REST API and the Website.
 
-The REST API receives benchmark results from the Client and provides data for the Website. It is built with Django and it uses a DB for storing past benchmark results and machine system information. The source code is in the `rest_api` directory. The Website shows lists of machines, runs, and benchmark results and also visualizes benchmark result trends. It only uses vanilla Javascript. The source code is in the `frontend` directory.
+The REST API receives benchmark results from the Client and provides data for the Website. It is built with Django and it uses a DB for storing past benchmark results and machine system information. The source code is in the `perffarm` directory. The Website shows lists of machines, runs, and benchmark results and also visualizes benchmark result trends. It only uses vanilla Javascript. The source code is in the `frontend` directory.
 
 
 
@@ -25,7 +25,7 @@ More information about requirements file and installation script can be found in
 ### Installation
 
 ```bash
-$ cd rest_api
+$ cd perffarm_server
 ```
 
 Set up and activate Python `virtualenv`
@@ -41,10 +41,10 @@ Install the required modules.
 $ pip3 install -r requirements.txt
 ```
 
-Next, create a `rest_api/settings_local.py` file:
+Next, create a `settings_local.py` file:
 
 ```bash
-$ cp rest_api/settings_local.py.in rest_api/settings_local.py
+$ cp perffarm/settings_local.py.in perffarm/settings_local.py
 ```
 
 Edit the file and change the database configuration and other settings to suit your environment. Make sure you create the required database and user account on your PostgreSQL server.
