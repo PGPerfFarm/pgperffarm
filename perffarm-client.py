@@ -164,19 +164,19 @@ if __name__ == '__main__':
                 POSTGRES_CONFIG['listen_addresses'] = ''
                 POSTGRES_CONFIG['unix_socket_directories'] = folders.SOCKET_PATH
 
+                # create collectors
+                collectors = MultiCollector()
+
+                system = os.popen("uname").readlines()[0].split()[0]
+
+                collectors.register('system', SystemCollector(folders.OUTPUT_PATH))
+
+                pg_collector = PostgresCollector(folders.OUTPUT_PATH, dbname=DATABASE_NAME)
+                collectors.register('postgres', pg_collector)
+
+                runner = BenchmarkRunner(folders.OUTPUT_PATH, cluster, collectors)
+
                 if MODE == 0 or MODE == 2:
-                    # create collectors
-                    collectors = MultiCollector()
-
-                    system = os.popen("uname").readlines()[0].split()[0]
-
-                    collectors.register('system', SystemCollector(folders.OUTPUT_PATH))
-
-                    pg_collector = PostgresCollector(folders.OUTPUT_PATH, dbname=DATABASE_NAME)
-                    collectors.register('postgres', pg_collector)
-
-                    runner = BenchmarkRunner(folders.OUTPUT_PATH, cluster, collectors)
-
                     # register the three tests we currently have
                     runner.register_benchmark('pgbench', PgBench)
 
@@ -186,21 +186,21 @@ if __name__ == '__main__':
                         runner.register_config('pgbench-basic', 'pgbench', branch, commit, dbname=DATABASE_NAME,
                                                bin_path=folders.BIN_PATH, postgres_config=POSTGRES_CONFIG, **config)
 
-                    # check configuration and report all issues
-                    issues = runner.check()
+                # check configuration and report all issues
+                issues = runner.check()
 
-                    if issues != {}:
-                        # print the issues
-                        for k in issues:
-                            for v in issues[k]:
-                                for i in v:
-                                    print(k, ':', i)
-                        raise Exception("Issues in configuration have been found.")
+                if issues != {}:
+                    # print the issues
+                    for k in issues:
+                        for v in issues[k]:
+                            for i in v:
+                                print(k, ':', i)
+                    raise Exception("Issues in configuration have been found.")
 
-                    else:
-                        run_start_time = datetime.now(timezone)
-                        runner.run()
-                        run_end_time = datetime.now(timezone)
+                else:
+                    run_start_time = datetime.now(timezone)
+                    runner.run()
+                    run_end_time = datetime.now(timezone)
 
                 if MODE == 1:
                     cluster.start(config=POSTGRES_CONFIG)
@@ -232,27 +232,26 @@ if __name__ == '__main__':
                     log("Error while cleaning directories, check logs.")
                     sys.exit(1)
 
+            runtime = {
+                'run_received_time': run_received_time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                'run_start_time': run_start_time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                'run_end_time': run_end_time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                'git_clone_runtime': git_clone_runtime,
+                'git_pull_runtime': git_pull_runtime,
+                'configure_runtime': configure_runtime,
+                'build_runtime': build_runtime,
+                'install_runtime': install_runtime,
+                'cleanup_runtime': cleanup_runtime
+            }
+
+            # saving times in a text file
+            with open(folders.LOG_PATH + '/runtime_log.json', 'w+') as file:
+                file.write(json.dumps(runtime, indent=4))
+
             if MODE == 0 or MODE == 2:
-                runtime = {
-                    'run_received_time': run_received_time.strftime("%Y-%m-%dT%H:%M:%S%z"),
-                    'run_start_time': run_start_time.strftime("%Y-%m-%dT%H:%M:%S%z"),
-                    'run_end_time': run_end_time.strftime("%Y-%m-%dT%H:%M:%S%z"),
-                    'git_clone_runtime': git_clone_runtime,
-                    'git_pull_runtime': git_pull_runtime,
-                    'configure_runtime': configure_runtime,
-                    'build_runtime': build_runtime,
-                    'install_runtime': install_runtime,
-                    'cleanup_runtime': cleanup_runtime
-                }
-
-                # saving times in a text file
-                with open(folders.LOG_PATH + '/runtime_log.json', 'w+') as file:
-                    file.write(json.dumps(runtime, indent=4))
-
-                if (AUTOMATIC_UPLOAD):
+                if AUTOMATIC_UPLOAD:
                     upload(API_URL, folders.OUTPUT_PATH, MACHINE_SECRET)
                     log("Run complete. Uploading...")
-
                 else:
                     log("Run complete, check results in '%s'" % (folders.OUTPUT_PATH,))
 
