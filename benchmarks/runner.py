@@ -4,6 +4,8 @@ from time import gmtime, strftime
 from subprocess import check_output
 import simplejson as json
 
+import folders
+from pgtpch import tpch_runner
 from utils.logging import log
 from settings_local import *
 
@@ -63,9 +65,10 @@ class BenchmarkRunner(object):
 
 		for config in self._configs:
 			for config_name in config:
-				t = self._check_config(config_name)
-				if t:
-					issues.update({config_name: t}) 
+				if config_name == 'pgbench-basic':
+					t = self._check_config(config_name)
+					if t:
+						issues.update({config_name: t})
 
 		return issues
 
@@ -76,8 +79,10 @@ class BenchmarkRunner(object):
 
 		r = {}
 		r['pgbench'] = []
-
-		self._cluster.start(config=self._configs[0]['pgbench-basic']['postgres'])
+		if config_name == 'pgbench-basic':
+			self._cluster.start(config=self._configs[0]['pgbench-basic']['postgres'])
+		elif config_name == 'tpch':
+			self._cluster.start(config=self._configs[0]['tpch']['postgres'])
 
 		# start collector(s) of additional info
 		self._collector.start()
@@ -85,13 +90,16 @@ class BenchmarkRunner(object):
 		# construct the benchmark class for the given config name
 		for c in self._configs:
 			config = c[config_name]
-			bench = self._benchmarks[config['benchmark']]
+			if config_name == 'pgbench-basic':
+				bench = self._benchmarks[config['benchmark']]
 
-			# expand the attribute names
-			bench = bench(**config['config'])
+				# expand the attribute names
+				bench = bench(**config['config'])
 
-			# run the tests
-			r['pgbench'].append(bench.run_tests())
+				# run the tests
+				r['pgbench'].append(bench.run_tests())
+			elif config_name == 'tpch':
+				tpch_runner.run_tpch(folders.SOCKET_PATH, 'postgres', config['config']['results_dir'] , TPCH_SCALE)
 
 		# stop collectors
 		self._collector.stop()
@@ -160,5 +168,6 @@ class BenchmarkRunner(object):
 		except OSError as e:
 			log("Output directory already exists: %s" % self._output)
 
+		print(self._configs)
 		for config_name in self._configs[0]:
 			self._run_config(config_name)

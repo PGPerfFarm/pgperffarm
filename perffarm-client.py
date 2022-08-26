@@ -186,6 +186,11 @@ if __name__ == '__main__':
                         runner.register_config('pgbench-basic', 'pgbench', branch, commit, dbname=DATABASE_NAME,
                                                bin_path=folders.BIN_PATH, postgres_config=POSTGRES_CONFIG, **config)
 
+                if MODE == 1:
+                    results_dir = {'results_dir':os.path.join(BRANCH_PATH, 'tpch_result')}
+                    runner.register_config('tpch', 'tpch', branch, commit, dbname=DATABASE_NAME,
+                                           bin_path=folders.BIN_PATH, postgres_config=POSTGRES_CONFIG, **results_dir)
+
                 # check configuration and report all issues
                 issues = runner.check()
 
@@ -201,14 +206,6 @@ if __name__ == '__main__':
                     run_start_time = datetime.now(timezone)
                     runner.run()
                     run_end_time = datetime.now(timezone)
-
-                if MODE == 1:
-                    cluster.start(config=POSTGRES_CONFIG)
-
-                if MODE == 1 or MODE == 2:
-                    results_dir = os.path.join(BRANCH_PATH, 'tpch_result')
-                    tpch_runner.run_tpch(folders.SOCKET_PATH, 'postgres', results_dir, TPCH_SCALE)
-                    tpch_runner.upload_result(results_dir, branch, commit)
 
             except Exception as e:
                 log(e)
@@ -255,6 +252,8 @@ if __name__ == '__main__':
                 else:
                     log("Run complete, check results in '%s'" % (folders.OUTPUT_PATH,))
 
+            if MODE == 1 or MODE == 2:
+                tpch_runner.upload_result(results_dir, branch, commit)
         return
 
 
