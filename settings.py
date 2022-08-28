@@ -24,7 +24,10 @@ MACHINE_SECRET = 'changeme'
 TPCH_SCALE = 1
 
 # mode for running the client
-MODE = 0  # 0 for only pgbench, 1 for only tpc-h， 2 for both.
+MODE = [
+    'pgbench',
+    # 'tpch'
+]
 
 POSTGRES_CONFIG = {
     'shared_buffers': '1GB',

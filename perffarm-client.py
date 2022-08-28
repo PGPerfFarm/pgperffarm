@@ -29,7 +29,7 @@ from pgtpch import tpch_runner
 
 if __name__ == '__main__':
 
-    def run(branch_name, BRANCH_PATH):
+    def run(branch_name, BRANCH_PATH, mode):
 
         with FileLock('.lock') as lock:
 
@@ -176,7 +176,7 @@ if __name__ == '__main__':
 
                 runner = BenchmarkRunner(folders.OUTPUT_PATH, cluster, collectors)
 
-                if MODE == 0 or MODE == 2:
+                if mode == 'pgbench':
                     # register the three tests we currently have
                     runner.register_benchmark('pgbench', PgBench)
 
@@ -186,7 +186,7 @@ if __name__ == '__main__':
                         runner.register_config('pgbench-basic', 'pgbench', branch, commit, dbname=DATABASE_NAME,
                                                bin_path=folders.BIN_PATH, postgres_config=POSTGRES_CONFIG, **config)
 
-                if MODE == 1:
+                if mode == 'tpch':
                     results_dir = {'results_dir':os.path.join(BRANCH_PATH, 'tpch_result')}
                     runner.register_config('tpch', 'tpch', branch, commit, dbname=DATABASE_NAME,
                                            bin_path=folders.BIN_PATH, postgres_config=POSTGRES_CONFIG, **results_dir)
@@ -204,7 +204,7 @@ if __name__ == '__main__':
 
                 else:
                     run_start_time = datetime.now(timezone)
-                    runner.run()
+                    runner.run(mode)
                     run_end_time = datetime.now(timezone)
 
             except Exception as e:
@@ -245,15 +245,15 @@ if __name__ == '__main__':
             with open(folders.LOG_PATH + '/runtime_log.json', 'w+') as file:
                 file.write(json.dumps(runtime, indent=4))
 
-            if MODE == 0 or MODE == 2:
+            if mode == 'pgbench':
                 if AUTOMATIC_UPLOAD:
-                    upload(API_URL, folders.OUTPUT_PATH, MACHINE_SECRET, 'pgbench')
+                    upload(API_URL, folders.OUTPUT_PATH, MACHINE_SECRET, mode)
                     log("Run complete. Uploading...")
                 else:
                     log("Run complete, check results in '%s'" % (folders.OUTPUT_PATH,))
 
-            if MODE == 1 or MODE == 2:
-                upload(API_URL, results_dir['results_dir'], MACHINE_SECRET, 'tpch')
+            if mode == 'tpch':
+                upload(API_URL, results_dir['results_dir'], MACHINE_SECRET, mode)
         return
 
 
@@ -263,20 +263,21 @@ if __name__ == '__main__':
     if (not (os.path.exists(BASE_PATH))):
         os.mkdir(BASE_PATH)
 
-    for branch in branches:
+    for mode in MODE:
+        for branch in branches:
 
-        folders.init()
+            folders.init()
 
-        BRANCH_PATH = os.path.join(BASE_PATH, branch['branch_name'])
+            BRANCH_PATH = os.path.join(BASE_PATH, branch['branch_name'])
 
-        if (not (os.path.exists(BRANCH_PATH))):
-            os.mkdir(BRANCH_PATH)
+            if (not (os.path.exists(BRANCH_PATH))):
+                os.mkdir(BRANCH_PATH)
 
-        # calculate child directories
-        create_path(BRANCH_PATH)
+            # calculate child directories
+            create_path(BRANCH_PATH)
 
-        # override HEAD
-        if (branch['branch_name'] == 'HEAD'):
-            branch['branch_name'] = 'master'
+            # override HEAD
+            if (branch['branch_name'] == 'HEAD'):
+                branch['branch_name'] = 'master'
 
-        run(branch['branch_name'], BRANCH_PATH)
+            run(branch['branch_name'], BRANCH_PATH, mode)

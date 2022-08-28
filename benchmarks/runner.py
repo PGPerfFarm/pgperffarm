@@ -73,15 +73,15 @@ class BenchmarkRunner(object):
 		return issues
 
 
-	def _run_config(self, config_name):
+	def _run_config(self, config_name, mode):
 
 		log("Running benchmark configuration")
 
 		r = {}
 		r['pgbench'] = []
-		if config_name == 'pgbench-basic':
+		if mode == 'pgbench':
 			self._cluster.start(config=self._configs[0]['pgbench-basic']['postgres'])
-		elif config_name == 'tpch':
+		elif mode == 'tpch':
 			self._cluster.start(config=self._configs[0]['tpch']['postgres'])
 
 		# start collector(s) of additional info
@@ -90,7 +90,7 @@ class BenchmarkRunner(object):
 		# construct the benchmark class for the given config name
 		for c in self._configs:
 			config = c[config_name]
-			if config_name == 'pgbench-basic':
+			if mode == 'pgbench':
 				bench = self._benchmarks[config['benchmark']]
 
 				# expand the attribute names
@@ -98,7 +98,7 @@ class BenchmarkRunner(object):
 
 				# run the tests
 				r['pgbench'].append(bench.run_tests())
-			elif config_name == 'tpch':
+			elif mode == 'tpch':
 				tpch_runner.run_tpch(folders.SOCKET_PATH, 'postgres', config['config']['results_dir'] , TPCH_SCALE)
 
 		# stop collectors
@@ -160,7 +160,7 @@ class BenchmarkRunner(object):
 			f.write(json.dumps(r, indent=4))
 
 
-	def run(self):
+	def run(self, mode):
 		'run all the configured benchmarks'
 		
 		try:
@@ -168,6 +168,5 @@ class BenchmarkRunner(object):
 		except OSError as e:
 			log("Output directory already exists: %s" % self._output)
 
-		print(self._configs)
 		for config_name in self._configs[0]:
-			self._run_config(config_name)
+			self._run_config(config_name, mode)
