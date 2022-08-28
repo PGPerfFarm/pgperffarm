@@ -247,13 +247,13 @@ if __name__ == '__main__':
 
             if MODE == 0 or MODE == 2:
                 if AUTOMATIC_UPLOAD:
-                    upload(API_URL, folders.OUTPUT_PATH, MACHINE_SECRET)
+                    upload(API_URL, folders.OUTPUT_PATH, MACHINE_SECRET, 'pgbench')
                     log("Run complete. Uploading...")
                 else:
                     log("Run complete, check results in '%s'" % (folders.OUTPUT_PATH,))
 
             if MODE == 1 or MODE == 2:
-                tpch_runner.upload_result(results_dir, branch, commit)
+                upload(API_URL, results_dir['results_dir'], MACHINE_SECRET, 'tpch')
         return
 
 

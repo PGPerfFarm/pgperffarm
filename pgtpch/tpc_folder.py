@@ -19,6 +19,7 @@ data_dir = os.path.join(OUTPUT_PATH, 'data')
 
 # tables in tpch benchmark models
 TABLES = ['LINEITEM', 'PARTSUPP', 'ORDERS', 'CUSTOMER', 'SUPPLIER', 'NATION', 'REGION', 'PART']
+TABLES = [x.lower() for x in TABLES]
 
 query_root = PROJECT_PATH = os.path.join(Path().parent.resolve(), 'pgtpch', 'queries')
 

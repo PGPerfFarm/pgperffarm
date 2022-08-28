@@ -30,44 +30,50 @@ def http_post(url, data, token):
         r = requests.post(url.encode('utf-8'), data=json.dumps(post).encode('utf-8'), headers=headers)
 
 
-def upload(api_url, results_directory, token):
+def upload(api_url, results_directory, token, mode):
 
     path_url = 'run/upload/'
     url = api_url + path_url
-
-    json_file = results_directory + "/results.json"
+    json_file = folders.OUTPUT_PATH + "/results.json"
 
     with open(json_file,'r') as load_f:
         load_dict = (json.load(load_f, encoding="UTF-8"))
 
-    pgbench_logs = []
+    if mode == "tpch":
+        upload_path = os.path.join(results_directory, 'metrics')
+        json_file = upload_path + "/Metric.json"
+        with open(json_file, 'r') as load_f:
+            tpch_res = json.load(load_f, encoding="UTF-8")
+            load_dict.update(tpch_res)
 
+    pgbench_logs = []
     # extracting logs
     for file in os.scandir(folders.LOG_PATH):
 
         filename = os.path.basename(file)
         name = os.path.splitext(filename)[0]
 
-        if (name == 'runtime_log'):
+        if name == 'runtime_log':
             with open (file, 'r') as f:
                 runtime_data = json.load(f)
                 load_dict.update(runtime_data)
 
-        elif (name.startswith('pgbench-')):
+        elif name.startswith('pgbench-') and mode == "pgbench":
             with open (file, 'r') as f:
                 log = f.read()
                 pgbench_logs.append({name: log})
 
         else:
-
             with open (file, 'r') as f:
                 content = f.read()
 
             temp = {name: content}
             load_dict.update(temp)
 
-    load_dict.update({'pgbench_log_aggregate': pgbench_logs})
+    if mode == "pgbench":
+        load_dict.update({'pgbench_log_aggregate': pgbench_logs})
 
-    with open(folders.OUTPUT_PATH + '/results_complete.json', 'w+') as results:
+    complete_res_file_name = '/pgbench_results_complete.json' if mode == "pgbench" else '/tpch_results_complete.json'
+    with open(folders.OUTPUT_PATH + complete_res_file_name, 'w+') as results:
         results.write(json.dumps(load_dict, indent=4))
         http_post(url, load_dict, token)
