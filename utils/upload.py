@@ -37,13 +37,13 @@ def upload(api_url, results_directory, token, mode):
     json_file = folders.OUTPUT_PATH + "/results.json"
 
     with open(json_file,'r') as load_f:
-        load_dict = (json.load(load_f, encoding="UTF-8"))
+        load_dict = (json.load(load_f))
 
     if mode == "tpch":
         upload_path = os.path.join(results_directory, 'metrics')
         json_file = upload_path + "/Metric.json"
         with open(json_file, 'r') as load_f:
-            tpch_res = json.load(load_f, encoding="UTF-8")
+            tpch_res = json.load(load_f)
             load_dict.update(tpch_res)
 
     pgbench_logs = []

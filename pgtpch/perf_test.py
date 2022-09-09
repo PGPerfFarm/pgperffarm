@@ -530,6 +530,9 @@ def calc_metrics(results_dir, scale_factor, num_streams):
     res.setMetric("scale_factor", scale_factor)
     log("scale_factor = %s" % scale_factor)
 
+    res.setMetric("num_streams", num_streams)
+    log("num_streams = %s" % num_streams)
+
     timezone = tz.gettz(time.tzname[0])
     date_submitted = datetime.now(timezone)
     res.setMetric("date_submitted", date_submitted.strftime("%Y-%m-%dT%H:%M:%S%z"))
@@ -543,11 +546,11 @@ def prepare_result(in_dir, num_streams):
     try:
         json_file = os.path.join(in_dir, "metrics" + "/Metric.json")
         with open(json_file, 'r') as load_f:
-            res_dict = (json.load(load_f, encoding="UTF-8"))
+            res_dict = (json.load(load_f))
 
         power_res = os.path.join(in_dir, 'power' + '/Power.json')
         with open(power_res, 'r') as load_f:
-            tmp_dict = (json.load(load_f, encoding="UTF-8"))
+            tmp_dict = (json.load(load_f))
         power_dict = {}
         for s, v in tmp_dict.items():
             if '_query_' in s:
@@ -559,7 +562,7 @@ def prepare_result(in_dir, num_streams):
         for i in range(1, num_streams + 1):
             throughput_res = os.path.join(in_dir, 'throughput' + '/ThroughputQueryStream' + str(i) +'.json')
             with open(throughput_res, 'r') as load_f:
-                tmp = (json.load(load_f, encoding="UTF-8"))
+                tmp = (json.load(load_f))
             for s, v in tmp.items():
                 k = s[s.index('_query_') + len('_query_'):]
                 v = get_timedelta_in_seconds(v)

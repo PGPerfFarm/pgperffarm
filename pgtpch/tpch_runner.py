@@ -131,7 +131,7 @@ def upload_result(results_dir, branch, commit):
 
         json_file = upload_path + "/Metric.json"
         with open(json_file, 'r') as load_f:
-            load_dict = (json.load(load_f, encoding="UTF-8"))
+            load_dict = (json.load(load_f))
         load_dict['branch'] = branch
         load_dict['commit'] = commit
         load_dict['streams'] = scale_to_num_streams(TPCH_SCALE)
