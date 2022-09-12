@@ -40,6 +40,7 @@ The machine `secret` is obtained registering the machine in the website, therefo
 Specifically, it is possible to set:
 
 * Whether to test locally or upload results to the server
+* When uploading whether to user basic authentication option or not
 * Whether to call `git pull` at every execution
 * Path in which to clone, install and collect output (should have non-superuser access)
 * Postgres configuration
