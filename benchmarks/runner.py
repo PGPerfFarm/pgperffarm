@@ -77,21 +77,22 @@ class BenchmarkRunner(object):
         r['pgbench'] = []
         if mode == 'pgbench':
             self._cluster.start(config=self._configs[0]['pgbench-basic']['postgres'])
-            dbname=self._configs[0]['pgbench-basic']['config']['dbname']
+            dbname = self._configs[0]['pgbench-basic']['config']['dbname']
             socket_path = self._configs[0]['pgbench-basic']['postgres']['unix_socket_directories']
-        elif mode == 'tpch':
+        else:  # mode == 'tpch':
             self._cluster.start(config=self._configs[0]['tpch']['postgres'])
             dbname = self._configs[0]['tpch']['config']['dbname']
             socket_path = self._configs[0]['tpch']['postgres']['unix_socket_directories']
 
-        try:
-            connection = psycopg2.connect("host='%s'  dbname='%s'" % (socket_path, 'postgres'))
-            connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT);
-            with connection.cursor() as cursor:
-                cursor.execute("CREATE DATABASE %s" % dbname)
-        finally:
-            if connection:
-                connection.close()
+        if dbname != 'postgres':
+            try:
+                connection = psycopg2.connect("host='%s'  dbname='%s'" % (socket_path, 'postgres'))
+                connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT);
+                with connection.cursor() as cursor:
+                    cursor.execute("CREATE DATABASE %s" % dbname)
+            finally:
+                if connection:
+                    connection.close()
 
         # start collector(s) of additional info
         self._collector.start()
