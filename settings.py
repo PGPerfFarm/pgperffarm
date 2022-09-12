@@ -17,7 +17,7 @@ GIT_URL = 'https://github.com/postgres/postgres.git'
 # also should have non-superuser access
 BASE_PATH = '/tmp/perffarm'
 
-API_URL = 'http://140.211.168.111/'
+API_URL = 'http://140.211.168.145/'
 MACHINE_SECRET = 'changeme'
 
 # scale factor for tpc-h benchmark
