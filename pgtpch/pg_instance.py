@@ -30,7 +30,7 @@ class PGDB:
     def executeQuery(self, query):
         if self.__cursor__ is not None:
             self.__cursor__.execute(query)
-            return 1
+            return 0
         else:
             print("database has been closed")
             return 1
