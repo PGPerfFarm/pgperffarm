@@ -1,4 +1,6 @@
 import psycopg2
+import json
+from utils.logging import log
 
 # class for connections to postgres
 class PGDB:
@@ -28,11 +30,20 @@ class PGDB:
     def executeQuery(self, query):
         if self.__cursor__ is not None:
             self.__cursor__.execute(query)
-            return 0
+            return 1
         else:
             print("database has been closed")
             return 1
-
+    def explaineQuery(self, query):
+        if self.__cursor__ is not None:
+            self.__cursor__.execute(query)
+            result=self.__cursor__.fetchall()
+            # result=json.dumps(result)
+            
+            return result
+        else:
+            print("database has been closed")
+            return 0
     def copyFrom(self, filepath, separator, table):
         if self.__cursor__ is not None:
             with open(filepath, 'r') as in_file:

@@ -188,6 +188,21 @@ def run_query_stream(conn, query_root, generated_query_dir, stream, num_streams,
             result.startTimer()
             conn.executeQueryFromFile(filepath)
             result.setMetric(QUERY_METRIC % (stream, order[i]), result.stopTimer())
+            with open(filepath) as f:
+                query_lines = f.readlines()
+         
+            
+            # Remove the extra line from the query
+            query_lines = [line for line in query_lines if "-- using" not in line]
+            
+            # Join the query lines back into a single string
+            query = ''.join(query_lines)
+            if(i==15):
+               continue
+            explain_query = "EXPLAIN " + query  # Construct EXPLAIN command
+            expalineResult=conn.explaineQuery(explain_query)
+            result.setExplainResult(QUERY_METRIC % (stream, order[i]), expalineResult)
+            
         except Exception as e:
             log("unable to execute query %s in stream %s: %s" % (order[i], stream, e))
             return 1
@@ -236,6 +251,7 @@ def run_power_test(query_root, update_dir, delete_dir, generated_query_dir, resu
         if verbose:
             result.printMetrics()
         result.saveMetrics(results_dir, "power")
+        result.saveExplainResults(results_dir, "power")
     except Exception as e:
         log("unable to run power tests. DB connection failed: %s" % e)
         return 1
