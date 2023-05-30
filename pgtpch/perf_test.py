@@ -188,6 +188,30 @@ def run_query_stream(conn, query_root, generated_query_dir, stream, num_streams,
             result.startTimer()
             conn.executeQueryFromFile(filepath)
             result.setMetric(QUERY_METRIC % (stream, order[i]), result.stopTimer())
+        except Exception as e:
+            log("unable to execute query %s in stream %s: %s" % (order[i], stream, e))
+            return 1
+    return 0
+
+def run_Explain_query_stream(conn, query_root, generated_query_dir, stream, num_streams, result, verbose):
+    """
+
+    :param conn: open connection to the database
+    :param query_root: directory where generated SQL statements are stored
+    :param generated_query_dir: subdirectory with generated queries
+    :param stream: stream number
+    :param num_streams: total number of streams
+    :param result: result object for string start and stop times
+    :param verbose: True if more verbose output is required
+    :return: 0 if successful, 1 otherwise
+    """
+    index = stream % len(QUERY_ORDER)
+    order = QUERY_ORDER[index]
+    for i in range(0, 22):
+        try:
+            if verbose:
+                log("Running query #%s in stream #%s ..." % (order[i], stream))
+            filepath = os.path.join(query_root, generated_query_dir, str(order[i]) + ".sql")
             with open(filepath) as f:
                 query_lines = f.readlines()
          
@@ -197,7 +221,7 @@ def run_query_stream(conn, query_root, generated_query_dir, stream, num_streams,
             
             # Join the query lines back into a single string
             query = ''.join(query_lines)
-            if(i==15):
+            if(order[i]==15 ):
                continue
             explain_query = "EXPLAIN " + query  # Construct EXPLAIN command
             expalineResult=conn.explaineQuery(explain_query)
@@ -207,6 +231,51 @@ def run_query_stream(conn, query_root, generated_query_dir, stream, num_streams,
             log("unable to execute query %s in stream %s: %s" % (order[i], stream, e))
             return 1
     return 0
+
+
+def run_explain_query(query_root, update_dir, delete_dir, generated_query_dir, results_dir,
+                   host, database, run_timestamp, num_streams, verbose, read_only):
+    """
+
+    :param query_root: directory where generated SQL statements are stored
+    :param update_dir: subdirectory with data to be updated
+    :param delete_dir: subdirectory with data to be deleted
+    :param generated_query_dir: subdirectory with generated queries
+    :param results_dir: path to the results folder
+    :param host: hostname where the Postgres database is running
+    :param database: database name, where the benchmark will be run
+    :param run_timestamp: name of the run folder, format run_YYYYMMDD_HHMMSS
+    :param num_streams: number of streams
+    :param verbose: True if more verbose output is required
+    :param read_only: True if no inserts/updates/deletes are to be run; can be used to run the same test multiple times
+    without (re)loading the data, e.g. while developing
+    :return: 0 if successful, 1 otherwise
+    """
+    try:
+        log("Explain test started ...")
+        conn = pgdb.PGDB(host, database)
+        result = r.Result("explain")
+        stream = 3  # using static stream number for explain query
+        
+        if run_Explain_query_stream(conn, query_root, generated_query_dir, stream, num_streams, result, verbose):
+            return 1
+        #
+        log("explain query finished.")
+        if verbose:
+            result.printMetrics()
+
+        result.saveExplainResults(results_dir, "Exaplaintest")
+    except Exception as e:
+        log("unable to run power tests. DB connection failed: %s" % e)
+        return 1
+    return 
+
+
+
+
+
+
+
 
 
 def run_power_test(query_root, update_dir, delete_dir, generated_query_dir, results_dir,
@@ -251,7 +320,6 @@ def run_power_test(query_root, update_dir, delete_dir, generated_query_dir, resu
         if verbose:
             result.printMetrics()
         result.saveMetrics(results_dir, "power")
-        result.saveExplainResults(results_dir, "power")
     except Exception as e:
         log("unable to run power tests. DB connection failed: %s" % e)
         return 1
@@ -350,7 +418,6 @@ def run_throughput_test(query_root, data_dir, update_dir, delete_dir, generated_
         if verbose:
             total.printMetrics()
         total.saveMetrics(results_dir, THROUGHPUT)
-        #
     except Exception as e:
         log("unable to execute throughput tests: %s" % e)
         return 1
