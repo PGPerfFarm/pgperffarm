@@ -253,7 +253,11 @@ if __name__ == '__main__':
                     log("Run complete, check results in '%s'" % (folders.OUTPUT_PATH,))
 
             if mode == 'tpch':
-                upload(API_URL, results_dir['results_dir'], MACHINE_SECRET, mode)
+                if AUTOMATIC_UPLOAD:
+                    upload(API_URL, results_dir['results_dir'], MACHINE_SECRET, mode)
+                    log("Run complete. Uploading...")
+                else:
+                    log("Run complete, check results in '%s'" % (results_dir['results_dir'],))
         return
 
 
