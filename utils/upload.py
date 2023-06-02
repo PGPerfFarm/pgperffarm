@@ -41,6 +41,15 @@ def upload(api_url, results_directory, token, mode):
 
     if mode == "tpch":
         upload_path = os.path.join(results_directory, 'metrics')
+        upload_path_expalainResults = os.path.join(results_directory, 'Explaintest')
+        explain_json_file = upload_path_expalainResults + "/Explain.json"
+        with open(explain_json_file, 'r') as load_f:
+            tmp_dict = (json.load(load_f))
+        explain_dict = {}
+        for s, v in tmp_dict.items():
+            explain_dict[s] = v
+        load_dict["explaine_results"]=explain_dict
+
         json_file = upload_path + "/Metric.json"
         with open(json_file, 'r') as load_f:
             tpch_res = json.load(load_f)

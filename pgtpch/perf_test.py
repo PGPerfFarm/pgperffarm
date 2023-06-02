@@ -223,9 +223,9 @@ def run_Explain_query_stream(conn, query_root, generated_query_dir, stream, num_
             query = ''.join(query_lines)
             if(order[i]==15 ):
                continue
-            explain_query = "EXPLAIN " + query  # Construct EXPLAIN command
+            explain_query = "EXPLAIN (ANALYZE, BUFFERS) " + query  # Construct EXPLAIN command
             expalineResult=conn.explaineQuery(explain_query)
-            result.setExplainResult(QUERY_METRIC % (stream, order[i]), expalineResult)
+            result.setExplainResult(order[i], expalineResult)
             
         except Exception as e:
             log("unable to execute query %s in stream %s: %s" % (order[i], stream, e))
@@ -264,7 +264,7 @@ def run_explain_query(query_root, update_dir, delete_dir, generated_query_dir, r
         if verbose:
             result.printMetrics()
 
-        result.saveExplainResults(results_dir, "Exaplaintest")
+        result.saveExplainResults(results_dir, "Explaintest")
     except Exception as e:
         log("unable to run power tests. DB connection failed: %s" % e)
         return 1
