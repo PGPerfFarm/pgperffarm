@@ -4,3 +4,6 @@ settings_local.py
 pgtpch/queries/generated_queries/*
 tpc-h/
 collectors/explainQuery.py
+test.py
+.gitignore
+test22.json
