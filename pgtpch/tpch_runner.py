@@ -121,6 +121,12 @@ def run_tpch(host, db_name, results_dir, scale=1):
                                  host, db_name, run_timestamp, num_streams, verbose, read_only):
         log("running explain query tests failed")
         exit(1)
+    if(RUN_EXPLAIN_QUERY_WITH_COSTS_ON):
+        if query.run_explain_query_withCostOff(query_root, UPDATE_DIR, DELETE_DIR, GENERATED_QUERY_DIR,
+                                    results_dir,
+                                    host, db_name, run_timestamp, num_streams, verbose, read_only):
+            log("running explain query with costs  off tests failed")
+            exit(1)
     log("done performance tests")
     query.calc_metrics(results_dir, scale, num_streams)
     query.prepare_result(results_dir, num_streams)

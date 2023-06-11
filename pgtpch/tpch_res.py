@@ -76,3 +76,12 @@ class Result:
             metrics[key] = str(value)
         with open(os.path.join(path, 'Explain.json'), 'w') as fp:
             json.dump(metrics, fp, indent=4, sort_keys=True)
+    def saveExplainResults_costOff(self, results_dir, folder):
+        path = os.path.join(results_dir, folder)
+        if not os.path.exists(path):
+            os.makedirs(path, exist_ok=True)
+        metrics = dict()
+        for key, value in self.__explain_results__.items():
+            metrics[key] = str(value)
+        with open(os.path.join(path, 'Explain_costOff.json'), 'w') as fp:
+            json.dump(metrics, fp, indent=4, sort_keys=True)

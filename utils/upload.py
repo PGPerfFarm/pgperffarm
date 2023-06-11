@@ -49,6 +49,18 @@ def upload(api_url, results_directory, token, mode):
         for s, v in tmp_dict.items():
             explain_dict[s] = v
         load_dict["explaine_results"]=explain_dict
+        try: 
+            explain_json_file = upload_path_expalainResults + "/Explain_costOff.json"
+            with open(explain_json_file, 'r') as load_f:
+                tmp_dict = (json.load(load_f))
+            explain_dict = {}
+            for s, v in tmp_dict.items():
+                explain_dict[s] = v
+            load_dict["explaine_results_costOff"]=explain_dict
+        except:
+            load_dict["explaine_results_costOff"]=None
+
+
 
         json_file = upload_path + "/Metric.json"
         with open(json_file, 'r') as load_f:

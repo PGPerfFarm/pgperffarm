@@ -7,3 +7,4 @@ collectors/explainQuery.py
 test.py
 .gitignore
 test22.json
+.vscode
