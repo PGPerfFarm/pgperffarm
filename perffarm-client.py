@@ -71,6 +71,10 @@ if __name__ == '__main__':
                     shutil.rmtree(folders.OUTPUT_PATH)
                     os.mkdir(folders.OUTPUT_PATH)
 
+                if (os.path.exists(folders.Tpch_OUTPUT_PATH )):
+                    shutil.rmtree(folders.Tpch_OUTPUT_PATH )
+                    os.mkdir(folders.Tpch_OUTPUT_PATH )
+
                 log("Existing installation found...")
 
                 branch = (git.Repo(folders.REPOSITORY_PATH)).active_branch
@@ -128,6 +132,9 @@ if __name__ == '__main__':
                 if (os.path.exists(folders.OUTPUT_PATH)):
                     shutil.rmtree(folders.OUTPUT_PATH)
                     os.mkdir(folders.OUTPUT_PATH)
+                if (os.path.exists(folders.Tpch_OUTPUT_PATH )):
+                    shutil.rmtree(folders.Tpch_OUTPUT_PATH )
+                    os.mkdir(folders.Tpch_OUTPUT_PATH )
 
                 # and finally, clone
                 log("Cloning repository...")
