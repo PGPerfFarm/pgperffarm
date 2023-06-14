@@ -59,6 +59,17 @@ def upload(api_url, results_directory, token, mode):
             load_dict["explaine_results_costOff"]=explain_dict
         except:
             load_dict["explaine_results_costOff"]=None
+            
+        try:
+            query_file = upload_path_expalainResults + "/query_plans.json"
+            with open(query_file, 'r') as load_f:
+                tmp_dict = (json.load(load_f))
+            query_dict = {}
+            for s, v in tmp_dict.items():
+                query_dict[s] = v
+            load_dict["query_plans"]=query_dict
+        except:
+            load_dict["query_plans"]=None
 
 
 

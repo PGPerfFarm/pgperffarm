@@ -298,6 +298,7 @@ def run_Explain_query_stream_withCostOff(conn, query_root, generated_query_dir, 
             
             # Join the query lines back into a single string
             query = ''.join(query_lines)
+            result.setQuery(order[i], query)
             if(order[i]==15 ):
                continue
             explain_query = "EXPLAIN (COSTS OFF ,FORMAT JSON, SUMMARY OFF ) " + query  # Construct EXPLAIN command
@@ -342,6 +343,7 @@ def run_explain_query_withCostOff(query_root, update_dir, delete_dir, generated_
             result.printMetrics()
 
         result.saveExplainResults_costOff(results_dir, "Explaintest")
+        result.saveQuery(results_dir, "Explaintest")
     except Exception as e:
         log("unable to run power tests. DB connection failed: %s" % e)
         return 1
