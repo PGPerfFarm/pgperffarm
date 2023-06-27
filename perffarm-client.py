@@ -287,8 +287,8 @@ if __name__ == '__main__':
             # calculate child directories
             create_path(BRANCH_PATH)
 
-            # override HEAD
-            if (branch['branch_name'] == 'HEAD'):
-                branch['branch_name'] = 'master'
+            # # override HEAD
+            # if (branch['branch_name'] == 'HEAD'):
+            #     branch['branch_name'] = 'master'
 
             run(branch['branch_name'], BRANCH_PATH, mode)

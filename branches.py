@@ -1,6 +1,6 @@
 branches = [
     {
-        'branch_name': 'HEAD',
+        'branch_name': 'master',
     },
     {
         'branch_name': 'REL_14_STABLE',

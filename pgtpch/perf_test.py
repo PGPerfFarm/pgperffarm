@@ -221,8 +221,8 @@ def run_Explain_query_stream(conn, query_root, generated_query_dir, stream, num_
             
             # Join the query lines back into a single string
             query = ''.join(query_lines)
-            if(order[i]==15 ):
-               continue
+            # if(order[i]==15 ):
+            #    continue
             explain_query = "EXPLAIN (ANALYZE,BUFFERS,FORMAT JSON) " + query  # Construct EXPLAIN command
             explainResult=conn.explaineQuery(explain_query)
             result.setExplainResult(order[i], explainResult)
@@ -299,8 +299,8 @@ def run_Explain_query_stream_withCostOff(conn, query_root, generated_query_dir, 
             # Join the query lines back into a single string
             query = ''.join(query_lines)
             result.setQuery(order[i], query)
-            if(order[i]==15 ):
-               continue
+            # if(order[i]==15 ):
+            #    continue
             explain_query = "EXPLAIN (COSTS OFF ,FORMAT JSON, SUMMARY OFF ) " + query  # Construct EXPLAIN command
             expalineResult=conn.explaineQuery(explain_query)
             result.setExplainResult(order[i], expalineResult)
