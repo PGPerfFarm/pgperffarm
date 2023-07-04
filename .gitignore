@@ -8,3 +8,4 @@ test.py
 .gitignore
 test22.json
 .vscode
+.lock
