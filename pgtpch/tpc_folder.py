@@ -6,7 +6,7 @@ from pathlib import Path
 OUTPUT_PATH = os.path.join(BASE_PATH, 'tpc-h', str(TPCH_SCALE))
 
 # current project root
-PROJECT_PATH = os.path.join(Path().parent.resolve(), 'tpc-h')
+PROJECT_PATH = os.path.join(Path(__file__).resolve().parent.parent, 'tpc-h')
 
 # path of the tpch tool
 TPC_TOOL_PATH = os.path.join(PROJECT_PATH, 'TPC-H_Tools')
@@ -21,7 +21,7 @@ data_dir = os.path.join(OUTPUT_PATH, 'data')
 TABLES = ['LINEITEM', 'PARTSUPP', 'ORDERS', 'CUSTOMER', 'SUPPLIER', 'NATION', 'REGION', 'PART']
 TABLES = [x.lower() for x in TABLES]
 
-query_root = PROJECT_PATH = os.path.join(Path().parent.resolve(), 'pgtpch', 'queries')
+query_root = PROJECT_PATH = os.path.join(Path(__file__).resolve().parent.parent, 'pgtpch', 'queries')
 
 UPDATE_DIR = os.path.join(OUTPUT_PATH, 'update')
 DELETE_DIR = os.path.join(OUTPUT_PATH, 'delete')
