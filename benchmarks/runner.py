@@ -85,6 +85,7 @@ class BenchmarkRunner(object):
             socket_path = self._configs[0]['tpch']['postgres']['unix_socket_directories']
 
         if dbname != 'postgres':
+            connection = None
             try:
                 connection = psycopg2.connect("host='%s'  dbname='%s'" % (socket_path, 'postgres'))
                 connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT);
