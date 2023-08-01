@@ -70,8 +70,7 @@ class PgBench(object):
         with open(folders.LOG_PATH + '/pgbench_custom_log.txt', 'w+') as file:
             file.write("pgbench_custom log: \n")
             file.write(r[1].decode("utf-8"))
-        
-        140
+            file.write("\n")
         self._pgbench_init = r[2]
         
 
@@ -212,7 +211,6 @@ class PgBench(object):
 
         # do an explicit checkpoint before each run
         run_cmd(['psql', '-h', folders.SOCKET_PATH, self._dbname, '-c', 'checkpoint'], env=self._env)
-        log(args)
         log("pgbench: clients=%d, jobs=%d, aggregate=%s, read-only=%s, duration=%d" % (nclients, njobs, aggregate, read_only, duration))
             
         start = time.time()
@@ -300,7 +298,29 @@ class PgBench(object):
         info['iterations'] = results
         info['duration'] = self._duration
         info['read_only'] = self._read_only
+        with open(init_path) as f:
+                init_lines = f.readlines()
+        init_lines=''.join(init_lines)
+        info['init_sql'] = init_lines
+        custom_query_files = glob.glob(custom_queries_path + '/*.sql')
+        tmp=[]
+        for query_file in custom_query_files:
+            match = re.findall('[0-9]+', query_file)
+            dot_cnt=re.findall('[.]',query_file)
+            if len(dot_cnt)>1 and  match:
+                weight = match[-1]
+                with open(query_file) as f:
+                    query_lines = f.readlines()
+                query_lines="weight-: " +str(weight).join(query_lines)
+                tmp.append(query_lines)
+            else:
+                with open(query_file) as f:
+                    query_lines = f.readlines()
+                query_lines=''.join(query_lines)
+                tmp.append(query_lines)
+                
 
+        info['custom_queries'] = tmp
         return info
         
                 
