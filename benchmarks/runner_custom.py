@@ -73,7 +73,7 @@ class BenchmarkRunner(object):
         log("Running benchmark configuration")
 
         r = {}
-        r['custom_pgbench'] = []
+        r['pgbench_custom'] = []
         if mode == 'pgbench_custom':
             self._cluster.start(config=self._configs[0]['pgbench-basic']['postgres'])
             dbname = self._configs[0]['pgbench-basic']['config']['dbname']
@@ -104,7 +104,7 @@ class BenchmarkRunner(object):
                 bench = bench(**config['config'])
 
                 # run the tests
-                r['custom_pgbench'].append(bench.run_custom_tests_pgbench())
+                r['pgbench_custom'].append(bench.run_custom_tests_pgbench())
 
         # stop collectors
         self._collector.stop()
