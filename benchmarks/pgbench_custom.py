@@ -67,8 +67,8 @@ class PgBench(object):
         r = run_cmd(['psql','-f',init_path, '-h', folders.SOCKET_PATH, '-p', '5432', self._dbname], env=self._env, cwd=self._outdir)
         #psql cammand to initialize the database
        
-        with open(folders.LOG_PATH + '/pgbench_custom_log.txt', 'w+') as file:
-            file.write("pgbench_custom log: \n")
+        with open(folders.LOG_PATH + '/pgbench_log.txt', 'w+') as file:
+            file.write("pgbench log: \n")
             file.write(r[1].decode("utf-8"))
             file.write("\n")
         self._pgbench_init = r[2]
@@ -85,7 +85,7 @@ class PgBench(object):
 
         data = data.decode('utf-8')
 
-        with open(folders.LOG_PATH + '/pgbench_custom_log.txt', 'a+') as file:
+        with open(folders.LOG_PATH + '/pgbench_log.txt', 'a+') as file:
             file.write(data)
 
         mode = -1
@@ -311,13 +311,15 @@ class PgBench(object):
                 weight = match[-1]
                 with open(query_file) as f:
                     query_lines = f.readlines()
-                query_lines="weight-: " +str(weight).join(query_lines)
-                tmp.append(query_lines)
+                query_lines=''.join(query_lines)
+                dict={'query':query_lines,'weight':weight}
+                tmp.append(dict)
             else:
                 with open(query_file) as f:
                     query_lines = f.readlines()
                 query_lines=''.join(query_lines)
-                tmp.append(query_lines)
+                dict={'query':query_lines,'weight':0}
+                tmp.append(dict)
                 
 
         info['custom_queries'] = tmp
