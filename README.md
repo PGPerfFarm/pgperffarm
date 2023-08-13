@@ -119,3 +119,45 @@ USER=username
 ```
 
 A reasonable interval for the cron job would be 2-6 hours, roughly as often as the MASTER branch is being updated. 
+
+
+
+### How  to run custom tests on pgbench
+
+The folder of custom pgbench is located in benchmark/custom_queries. The folder format is as follows:
+
+```
+- custom_queries
+    - custom1
+        - init.sql   # The initialization script of the database
+        - parameters.py   # The parameters of the custom test
+        - scripts/
+            - script1.sql   # The custom test script 
+            - script2.10.sql   # The custom test script with 10 weight
+    - custom2
+        - init.sql
+        - parameters.py
+        - scripts/
+            - script1.sql
+            - script2.10.sql
+    - ...
+```
+
+The parameters.py file is used to set the parameters of the custom test.
+
+```
+PGBENCH_CUSTOM_CONFIG = [
+    {
+        'iterations': 1,
+        'duration': 10,
+        'scale': 5,
+        'clients': [1],
+        'read_only': False,
+    },
+]
+
+```
+#  To run the custom test, you need to change the path of the parameters.py in the perffarm-client.py file  and pgbench_custom.py file
+# Add MODE=pgbench_custom in the settings_local.py file
+
+```
