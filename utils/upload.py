@@ -41,6 +41,38 @@ def upload(api_url, results_directory, token, mode):
 
     if mode == "tpch":
         upload_path = os.path.join(results_directory, 'metrics')
+        upload_path_expalainResults = os.path.join(results_directory, 'Explaintest')
+        explain_json_file = upload_path_expalainResults + "/Explain.json"
+        with open(explain_json_file, 'r') as load_f:
+            tmp_dict = (json.load(load_f))
+        explain_dict = {}
+        for s, v in tmp_dict.items():
+            explain_dict[s] = v
+        load_dict["explaine_results"]=explain_dict
+        try: 
+            explain_json_file = upload_path_expalainResults + "/Explain_costOff.json"
+            with open(explain_json_file, 'r') as load_f:
+                tmp_dict = (json.load(load_f))
+            explain_dict = {}
+            for s, v in tmp_dict.items():
+                explain_dict[s] = v
+            load_dict["explaine_results_costOff"]=explain_dict
+        except:
+            load_dict["explaine_results_costOff"]=None
+            
+        try:
+            query_file = upload_path_expalainResults + "/query_plans.json"
+            with open(query_file, 'r') as load_f:
+                tmp_dict = (json.load(load_f))
+            query_dict = {}
+            for s, v in tmp_dict.items():
+                query_dict[s] = v
+            load_dict["query_plans"]=query_dict
+        except:
+            load_dict["query_plans"]=None
+
+
+
         json_file = upload_path + "/Metric.json"
         with open(json_file, 'r') as load_f:
             tpch_res = json.load(load_f)
@@ -58,7 +90,7 @@ def upload(api_url, results_directory, token, mode):
                 runtime_data = json.load(f)
                 load_dict.update(runtime_data)
 
-        elif name.startswith('pgbench-') and mode == "pgbench":
+        elif name.startswith('pgbench-') and (mode == "pgbench" or mode=="pgbench_custom") :
             with open (file, 'r') as f:
                 log = f.read()
                 pgbench_logs.append({name: log})
@@ -70,10 +102,10 @@ def upload(api_url, results_directory, token, mode):
             temp = {name: content}
             load_dict.update(temp)
 
-    if mode == "pgbench":
+    if(mode == "pgbench" or mode=="pgbench_custom"):
         load_dict.update({'pgbench_log_aggregate': pgbench_logs})
 
-    complete_res_file_name = '/pgbench_results_complete.json' if mode == "pgbench" else '/tpch_results_complete.json'
+    complete_res_file_name = '/pgbench_results_complete.json' if (mode == "pgbench" or mode=="pgbench_custom") else '/tpch_results_complete.json'
     with open(folders.OUTPUT_PATH + complete_res_file_name, 'w+') as results:
         results.write(json.dumps(load_dict, indent=4))
         http_post(url, load_dict, token)

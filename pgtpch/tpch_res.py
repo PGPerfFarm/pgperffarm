@@ -13,6 +13,10 @@ class Result:
         self.__start__ = None
         # Metrics stored in dict
         self.__metrics__ = dict()
+        # Explain results stored in dict
+        self.__explain_results__ = dict()
+        self.__query__ = dict()
+
 
     def startTimer(self):
         self.__start__ = dt.datetime.now()
@@ -51,6 +55,12 @@ class Result:
             print("%s: %s" % (key, value))
         self.printResultFooter()
 
+    def setExplainResult(self, query, result):
+        self.__explain_results__[query] = result
+
+    def setQuery(self, id, query):
+        self.__query__[id] = query
+
     def saveMetrics(self, results_dir, folder):
         path = os.path.join(results_dir, folder)
         if not os.path.exists(path):
@@ -59,4 +69,33 @@ class Result:
         for key, value in self.__metrics__.items():
             metrics[key] = str(value)
         with open(os.path.join(path, self.__title__ + '.json'), 'w') as fp:
+            json.dump(metrics, fp, indent=4, sort_keys=True)
+
+    def saveExplainResults(self, results_dir, folder):
+        path = os.path.join(results_dir, folder)
+        if not os.path.exists(path):
+            os.makedirs(path, exist_ok=True)
+        metrics = dict()
+        for key, value in self.__explain_results__.items():
+            metrics[key] = str(value)
+        with open(os.path.join(path, 'Explain.json'), 'w') as fp:
+            json.dump(metrics, fp, indent=4, sort_keys=True)
+    def saveExplainResults_costOff(self, results_dir, folder):
+        path = os.path.join(results_dir, folder)
+        if not os.path.exists(path):
+            os.makedirs(path, exist_ok=True)
+        metrics = dict()
+        for key, value in self.__explain_results__.items():
+            metrics[key] = str(value)
+        with open(os.path.join(path, 'Explain_costOff.json'), 'w') as fp:
+            json.dump(metrics, fp, indent=4, sort_keys=True)
+
+    def saveQuery(self, results_dir, folder):
+        path = os.path.join(results_dir, folder)
+        if not os.path.exists(path):
+            os.makedirs(path, exist_ok=True)
+        metrics = dict()
+        for key, value in self.__query__.items():
+            metrics[key] = str(value)
+        with open(os.path.join(path, 'query_plans.json'), 'w') as fp:
             json.dump(metrics, fp, indent=4, sort_keys=True)

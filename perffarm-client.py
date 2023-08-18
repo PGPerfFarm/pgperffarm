@@ -9,6 +9,9 @@ from dateutil import tz
 
 from benchmarks.pgbench import PgBench
 from benchmarks.runner import BenchmarkRunner
+from benchmarks.runner_custom import BenchmarkRunner as BenchmarkRunner_custom
+from benchmarks.pgbench_custom import PgBench as PgBench_custom
+
 
 from collectors.system import SystemCollector
 from collectors.postgres import PostgresCollector
@@ -26,6 +29,9 @@ from branches import *
 import folders
 from path import create_path
 from pgtpch import tpch_runner
+
+# change the path accordingly
+from benchmarks.custom_queries.mybenchmark.parameters import * 
 
 if __name__ == '__main__':
 
@@ -70,6 +76,10 @@ if __name__ == '__main__':
                 if (os.path.exists(folders.OUTPUT_PATH)):
                     shutil.rmtree(folders.OUTPUT_PATH)
                     os.mkdir(folders.OUTPUT_PATH)
+
+                if (os.path.exists(folders.Tpch_OUTPUT_PATH )):
+                    shutil.rmtree(folders.Tpch_OUTPUT_PATH )
+                    os.mkdir(folders.Tpch_OUTPUT_PATH )
 
                 log("Existing installation found...")
 
@@ -128,6 +138,9 @@ if __name__ == '__main__':
                 if (os.path.exists(folders.OUTPUT_PATH)):
                     shutil.rmtree(folders.OUTPUT_PATH)
                     os.mkdir(folders.OUTPUT_PATH)
+                if (os.path.exists(folders.Tpch_OUTPUT_PATH )):
+                    shutil.rmtree(folders.Tpch_OUTPUT_PATH )
+                    os.mkdir(folders.Tpch_OUTPUT_PATH )
 
                 # and finally, clone
                 log("Cloning repository...")
@@ -173,14 +186,18 @@ if __name__ == '__main__':
 
                 pg_collector = PostgresCollector(folders.OUTPUT_PATH, dbname=DATABASE_NAME)
                 collectors.register('postgres', pg_collector)
+                
 
-                runner = BenchmarkRunner(folders.OUTPUT_PATH, cluster, collectors)
+                if(mode=='pgbench_custom'):
+                    runner = BenchmarkRunner_custom(folders.OUTPUT_PATH, cluster, collectors)
+                else:
+                    runner = BenchmarkRunner(folders.OUTPUT_PATH, cluster, collectors)
 
                 if mode == 'pgbench':
                     # register the three tests we currently have
                     runner.register_benchmark('pgbench', PgBench)
 
-                    for config in PGBENCH_CONFIG:
+                    for config in PGBENCH_CONFIG:               
                         config['results_dir'] = folders.OUTPUT_PATH
 
                         runner.register_config('pgbench-basic', 'pgbench', branch, commit, dbname=DATABASE_NAME,
@@ -190,6 +207,17 @@ if __name__ == '__main__':
                     results_dir = {'results_dir':os.path.join(BRANCH_PATH, 'tpch_result')}
                     runner.register_config('tpch', 'tpch', branch, commit, dbname=DATABASE_NAME,
                                            bin_path=folders.BIN_PATH, postgres_config=POSTGRES_CONFIG, **results_dir)
+                    
+                if mode=='pgbench_custom':
+                    # register the three tests we currently have
+                    runner.register_benchmark('pgbench', PgBench_custom)
+                   
+                    for config in PGBENCH_CUSTOM_CONFIG:               
+                        config['results_dir'] = folders.OUTPUT_PATH
+
+                        runner.register_config('pgbench-basic', 'pgbench', branch, commit, dbname=DATABASE_NAME,
+                                               bin_path=folders.BIN_PATH, postgres_config=POSTGRES_CONFIG, **config)
+
 
                 # check configuration and report all issues
                 issues = runner.check()
@@ -251,9 +279,20 @@ if __name__ == '__main__':
                     log("Run complete. Uploading...")
                 else:
                     log("Run complete, check results in '%s'" % (folders.OUTPUT_PATH,))
+            if mode == 'pgbench_custom':
+                if AUTOMATIC_UPLOAD:
+                    upload(API_URL, folders.OUTPUT_PATH, MACHINE_SECRET, mode)
+                    log("Run complete. Uploading...")
+                else:
+                    log("Run complete, check results in '%s'" % (folders.OUTPUT_PATH,))
+            
 
             if mode == 'tpch':
-                upload(API_URL, results_dir['results_dir'], MACHINE_SECRET, mode)
+                if AUTOMATIC_UPLOAD:
+                    upload(API_URL, results_dir['results_dir'], MACHINE_SECRET, mode)
+                    log("Run complete. Uploading...")
+                else:
+                    log("Run complete, check results in '%s'" % (results_dir['results_dir'],))
         return
 
 
@@ -276,8 +315,8 @@ if __name__ == '__main__':
             # calculate child directories
             create_path(BRANCH_PATH)
 
-            # override HEAD
-            if (branch['branch_name'] == 'HEAD'):
-                branch['branch_name'] = 'master'
+            # # override HEAD
+            # if (branch['branch_name'] == 'HEAD'):
+            #     branch['branch_name'] = 'master'
 
             run(branch['branch_name'], BRANCH_PATH, mode)

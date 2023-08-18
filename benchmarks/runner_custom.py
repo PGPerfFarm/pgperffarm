@@ -4,9 +4,8 @@ from time import gmtime, strftime
 from subprocess import check_output
 import simplejson as json
 import folders
-from pgtpch import tpch_runner
-from utils.logging import log
 from settings_local import *
+from utils.logging import log
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
@@ -74,15 +73,12 @@ class BenchmarkRunner(object):
         log("Running benchmark configuration")
 
         r = {}
-        r['pgbench'] = []
-        if mode == 'pgbench':
+        r['pgbench_custom'] = []
+        if mode == 'pgbench_custom':
             self._cluster.start(config=self._configs[0]['pgbench-basic']['postgres'])
             dbname = self._configs[0]['pgbench-basic']['config']['dbname']
             socket_path = self._configs[0]['pgbench-basic']['postgres']['unix_socket_directories']
-        else:  # mode == 'tpch':
-            self._cluster.start(config=self._configs[0]['tpch']['postgres'])
-            dbname = self._configs[0]['tpch']['config']['dbname']
-            socket_path = self._configs[0]['tpch']['postgres']['unix_socket_directories']
+    
 
         if dbname != 'postgres':
             connection = None
@@ -101,16 +97,14 @@ class BenchmarkRunner(object):
         # construct the benchmark class for the given config name
         for c in self._configs:
             config = c[config_name]
-            if mode == 'pgbench':
+            if mode == 'pgbench_custom':
                 bench = self._benchmarks[config['benchmark']]
 
                 # expand the attribute names
                 bench = bench(**config['config'])
 
                 # run the tests
-                r['pgbench'].append(bench.run_tests())
-            elif mode == 'tpch':
-                tpch_runner.run_tpch(folders.SOCKET_PATH, self._configs[0]['tpch']['config']['dbname'], config['config']['results_dir'], TPCH_SCALE)
+                r['pgbench_custom'].append(bench.run_custom_tests_pgbench())
 
         # stop collectors
         self._collector.stop()
