@@ -122,7 +122,7 @@ A reasonable interval for the cron job would be 2-6 hours, roughly as often as t
 
 
 
-## How  to run custom tests on pgbench
+### How  to run custom tests on pgbench
 
 The folder of custom pgbench is located in benchmark/custom_queries. The folder format is as follows:
 
@@ -157,7 +157,7 @@ PGBENCH_CUSTOM_CONFIG = [
 ]
 
 ```
-#### To run the custom test, you need to change the path of the parameters.py in the perffarm-client.py file  and pgbench_custom.py file
-#### Add MODE=pgbench_custom in the settings_local.py file
+#  To run the custom test, you need to change the path of the parameters.py in the perffarm-client.py file  and pgbench_custom.py file
+# Add MODE=pgbench_custom in the settings_local.py file
 
 ```
