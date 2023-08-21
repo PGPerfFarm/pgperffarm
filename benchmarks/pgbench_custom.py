@@ -203,7 +203,6 @@ class PgBench(object):
             if len(dot_cnt)>1 and  match:
 
                 weight = match[-1]
-                log(weight)
                 query_file+='@'+str(weight)
                 args.extend(['-f', query_file])
             else:
