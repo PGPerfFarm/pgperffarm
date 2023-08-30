@@ -18,10 +18,12 @@ DBGEN_PATH = os.path.join(TPC_TOOL_PATH, 'dbgen')
 data_dir = os.path.join(OUTPUT_PATH, 'data')
 
 # tables in tpch benchmark models
-TABLES = ['LINEITEM', 'PARTSUPP', 'ORDERS', 'CUSTOMER', 'SUPPLIER', 'NATION', 'REGION', 'PART']
+TABLES = ['LINEITEM', 'PARTSUPP', 'ORDERS',
+          'CUSTOMER', 'SUPPLIER', 'NATION', 'REGION', 'PART']
 TABLES = [x.lower() for x in TABLES]
 
-query_root = PROJECT_PATH = os.path.join(Path(__file__).resolve().parent.parent, 'pgtpch', 'queries')
+query_root = PROJECT_PATH = os.path.join(
+    Path(__file__).resolve().parent.parent, 'pgtpch', 'queries')
 
 UPDATE_DIR = os.path.join(OUTPUT_PATH, 'update')
 DELETE_DIR = os.path.join(OUTPUT_PATH, 'delete')

@@ -23,7 +23,8 @@ class PostgresCollector(object):
         log("saving postgres settings")
         try:
 
-            conn = psycopg2.connect('host=%s dbname=%s' % (folders.SOCKET_PATH, self._dbname))
+            conn = psycopg2.connect('host=%s dbname=%s' %
+                                    (folders.SOCKET_PATH, self._dbname))
             cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
             cur.execute(
                 'SELECT name, setting, source '
@@ -46,18 +47,17 @@ class PostgresCollector(object):
 
             conn.close()
 
-
         except Exception as e:
             with open(folders.LOG_PATH + '/pg_settings_log.txt', 'a+') as file:
-                    file.write(str(e))
-                    log("Error while extracting Postgres configuration, check logs.")
-                    log("Removing data directory, please try again running the script.")
+                file.write(str(e))
+                log("Error while extracting Postgres configuration, check logs.")
+                log("Removing data directory, please try again running the script.")
 
-                    # remove datadir
-                    if os.path.exists(folders.DATADIR_PATH):
-                        shutil.rmtree(folders.DATADIR_PATH)
-                        
-                    sys.exit()
+                # remove datadir
+                if os.path.exists(folders.DATADIR_PATH):
+                    shutil.rmtree(folders.DATADIR_PATH)
+
+                sys.exit()
 
     def stop(self):
         pass

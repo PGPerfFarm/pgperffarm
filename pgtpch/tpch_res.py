@@ -17,7 +17,6 @@ class Result:
         self.__explain_results__ = dict()
         self.__query__ = dict()
 
-
     def startTimer(self):
         self.__start__ = dt.datetime.now()
 
@@ -80,6 +79,7 @@ class Result:
             metrics[key] = str(value)
         with open(os.path.join(path, 'Explain.json'), 'w') as fp:
             json.dump(metrics, fp, indent=4, sort_keys=True)
+
     def saveExplainResults_costOff(self, results_dir, folder):
         path = os.path.join(results_dir, folder)
         if not os.path.exists(path):

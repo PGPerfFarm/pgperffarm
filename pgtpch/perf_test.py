@@ -18,46 +18,86 @@ REFRESH_METRIC = "refresh_stream_%s_func_%s"
 THROUGHPUT_TOTAL_METRIC = "throughput_test_total"
 
 QUERY_ORDER = [  # As given in appendix A of the TPCH-specification
-    [14, 2, 9, 20, 6, 17, 18, 8, 21, 13, 3, 22, 16, 4, 11, 15, 1, 10, 19, 5, 7, 12],
-    [21, 3, 18, 5, 11, 7, 6, 20, 17, 12, 16, 15, 13, 10, 2, 8, 14, 19, 9, 22, 1, 4],
-    [6, 17, 14, 16, 19, 10, 9, 2, 15, 8, 5, 22, 12, 7, 13, 18, 1, 4, 20, 3, 11, 21],
-    [8, 5, 4, 6, 17, 7, 1, 18, 22, 14, 9, 10, 15, 11, 20, 2, 21, 19, 13, 16, 12, 3],
-    [5, 21, 14, 19, 15, 17, 12, 6, 4, 9, 8, 16, 11, 2, 10, 18, 1, 13, 7, 22, 3, 20],
-    [21, 15, 4, 6, 7, 16, 19, 18, 14, 22, 11, 13, 3, 1, 2, 5, 8, 20, 12, 17, 10, 9],
-    [10, 3, 15, 13, 6, 8, 9, 7, 4, 11, 22, 18, 12, 1, 5, 16, 2, 14, 19, 20, 17, 21],
-    [18, 8, 20, 21, 2, 4, 22, 17, 1, 11, 9, 19, 3, 13, 5, 7, 10, 16, 6, 14, 15, 12],
-    [19, 1, 15, 17, 5, 8, 9, 12, 14, 7, 4, 3, 20, 16, 6, 22, 10, 13, 2, 21, 18, 11],
-    [8, 13, 2, 20, 17, 3, 6, 21, 18, 11, 19, 10, 15, 4, 22, 1, 7, 12, 9, 14, 5, 16],
-    [6, 15, 18, 17, 12, 1, 7, 2, 22, 13, 21, 10, 14, 9, 3, 16, 20, 19, 11, 4, 8, 5],
-    [15, 14, 18, 17, 10, 20, 16, 11, 1, 8, 4, 22, 5, 12, 3, 9, 21, 2, 13, 6, 19, 7],
-    [1, 7, 16, 17, 18, 22, 12, 6, 8, 9, 11, 4, 2, 5, 20, 21, 13, 10, 19, 3, 14, 15],
-    [21, 17, 7, 3, 1, 10, 12, 22, 9, 16, 6, 11, 2, 4, 5, 14, 8, 20, 13, 18, 15, 19],
-    [2, 9, 5, 4, 18, 1, 20, 15, 16, 17, 7, 21, 13, 14, 19, 8, 22, 11, 10, 3, 12, 6],
-    [16, 9, 17, 8, 14, 11, 10, 12, 6, 21, 7, 3, 15, 5, 22, 20, 1, 13, 19, 2, 4, 18],
-    [1, 3, 6, 5, 2, 16, 14, 22, 17, 20, 4, 9, 10, 11, 15, 8, 12, 19, 18, 13, 7, 21],
-    [3, 16, 5, 11, 21, 9, 2, 15, 10, 18, 17, 7, 8, 19, 14, 13, 1, 4, 22, 20, 6, 12],
-    [14, 4, 13, 5, 21, 11, 8, 6, 3, 17, 2, 20, 1, 19, 10, 9, 12, 18, 15, 7, 22, 16],
-    [4, 12, 22, 14, 5, 15, 16, 2, 8, 10, 17, 9, 21, 7, 3, 6, 13, 18, 11, 20, 19, 1],
-    [16, 15, 14, 13, 4, 22, 18, 19, 7, 1, 12, 17, 5, 10, 20, 3, 9, 21, 11, 2, 6, 8],
-    [20, 14, 21, 12, 15, 17, 4, 19, 13, 10, 11, 1, 16, 5, 18, 7, 8, 22, 9, 6, 3, 2],
-    [16, 14, 13, 2, 21, 10, 11, 4, 1, 22, 18, 12, 19, 5, 7, 8, 6, 3, 15, 20, 9, 17],
-    [18, 15, 9, 14, 12, 2, 8, 11, 22, 21, 16, 1, 6, 17, 5, 10, 19, 4, 20, 13, 3, 7],
-    [7, 3, 10, 14, 13, 21, 18, 6, 20, 4, 9, 8, 22, 15, 2, 1, 5, 12, 19, 17, 11, 16],
-    [18, 1, 13, 7, 16, 10, 14, 2, 19, 5, 21, 11, 22, 15, 8, 17, 20, 3, 4, 12, 6, 9],
-    [13, 2, 22, 5, 11, 21, 20, 14, 7, 10, 4, 9, 19, 18, 6, 3, 1, 8, 15, 12, 17, 16],
-    [14, 17, 21, 8, 2, 9, 6, 4, 5, 13, 22, 7, 15, 3, 1, 18, 16, 11, 10, 12, 20, 19],
-    [10, 22, 1, 12, 13, 18, 21, 20, 2, 14, 16, 7, 15, 3, 4, 17, 5, 19, 6, 8, 9, 11],
-    [10, 8, 9, 18, 12, 6, 1, 5, 20, 11, 17, 22, 16, 3, 13, 2, 15, 21, 14, 19, 7, 4],
-    [7, 17, 22, 5, 3, 10, 13, 18, 9, 1, 14, 15, 21, 19, 16, 12, 8, 6, 11, 20, 4, 2],
-    [2, 9, 21, 3, 4, 7, 1, 11, 16, 5, 20, 19, 18, 8, 17, 13, 10, 12, 15, 6, 14, 22],
-    [15, 12, 8, 4, 22, 13, 16, 17, 18, 3, 7, 5, 6, 1, 9, 11, 21, 10, 14, 20, 19, 2],
-    [15, 16, 2, 11, 17, 7, 5, 14, 20, 4, 21, 3, 10, 9, 12, 8, 13, 6, 18, 19, 22, 1],
-    [1, 13, 11, 3, 4, 21, 6, 14, 15, 22, 18, 9, 7, 5, 10, 20, 12, 16, 17, 8, 19, 2],
-    [14, 17, 22, 20, 8, 16, 5, 10, 1, 13, 2, 21, 12, 9, 4, 18, 3, 7, 6, 19, 15, 11],
-    [9, 17, 7, 4, 5, 13, 21, 18, 11, 3, 22, 1, 6, 16, 20, 14, 15, 10, 8, 2, 12, 19],
-    [13, 14, 5, 22, 19, 11, 9, 6, 18, 15, 8, 10, 7, 4, 17, 16, 3, 1, 12, 2, 21, 20],
-    [20, 5, 4, 14, 11, 1, 6, 16, 8, 22, 7, 3, 2, 12, 21, 19, 17, 13, 10, 15, 18, 9],
-    [3, 7, 14, 15, 6, 5, 21, 20, 18, 10, 4, 16, 19, 1, 13, 9, 8, 17, 11, 12, 22, 2],
+    [14, 2, 9, 20, 6, 17, 18, 8, 21, 13, 3, 22,
+        16, 4, 11, 15, 1, 10, 19, 5, 7, 12],
+    [21, 3, 18, 5, 11, 7, 6, 20, 17, 12, 16,
+        15, 13, 10, 2, 8, 14, 19, 9, 22, 1, 4],
+    [6, 17, 14, 16, 19, 10, 9, 2, 15, 8, 5, 22,
+        12, 7, 13, 18, 1, 4, 20, 3, 11, 21],
+    [8, 5, 4, 6, 17, 7, 1, 18, 22, 14, 9, 10,
+        15, 11, 20, 2, 21, 19, 13, 16, 12, 3],
+    [5, 21, 14, 19, 15, 17, 12, 6, 4, 9, 8, 16,
+        11, 2, 10, 18, 1, 13, 7, 22, 3, 20],
+    [21, 15, 4, 6, 7, 16, 19, 18, 14, 22, 11,
+        13, 3, 1, 2, 5, 8, 20, 12, 17, 10, 9],
+    [10, 3, 15, 13, 6, 8, 9, 7, 4, 11, 22, 18,
+        12, 1, 5, 16, 2, 14, 19, 20, 17, 21],
+    [18, 8, 20, 21, 2, 4, 22, 17, 1, 11, 9, 19,
+        3, 13, 5, 7, 10, 16, 6, 14, 15, 12],
+    [19, 1, 15, 17, 5, 8, 9, 12, 14, 7, 4, 3,
+        20, 16, 6, 22, 10, 13, 2, 21, 18, 11],
+    [8, 13, 2, 20, 17, 3, 6, 21, 18, 11, 19,
+        10, 15, 4, 22, 1, 7, 12, 9, 14, 5, 16],
+    [6, 15, 18, 17, 12, 1, 7, 2, 22, 13, 21,
+        10, 14, 9, 3, 16, 20, 19, 11, 4, 8, 5],
+    [15, 14, 18, 17, 10, 20, 16, 11, 1, 8, 4,
+        22, 5, 12, 3, 9, 21, 2, 13, 6, 19, 7],
+    [1, 7, 16, 17, 18, 22, 12, 6, 8, 9, 11, 4,
+        2, 5, 20, 21, 13, 10, 19, 3, 14, 15],
+    [21, 17, 7, 3, 1, 10, 12, 22, 9, 16, 6, 11,
+        2, 4, 5, 14, 8, 20, 13, 18, 15, 19],
+    [2, 9, 5, 4, 18, 1, 20, 15, 16, 17, 7, 21,
+        13, 14, 19, 8, 22, 11, 10, 3, 12, 6],
+    [16, 9, 17, 8, 14, 11, 10, 12, 6, 21, 7,
+        3, 15, 5, 22, 20, 1, 13, 19, 2, 4, 18],
+    [1, 3, 6, 5, 2, 16, 14, 22, 17, 20, 4, 9,
+        10, 11, 15, 8, 12, 19, 18, 13, 7, 21],
+    [3, 16, 5, 11, 21, 9, 2, 15, 10, 18, 17,
+        7, 8, 19, 14, 13, 1, 4, 22, 20, 6, 12],
+    [14, 4, 13, 5, 21, 11, 8, 6, 3, 17, 2, 20,
+        1, 19, 10, 9, 12, 18, 15, 7, 22, 16],
+    [4, 12, 22, 14, 5, 15, 16, 2, 8, 10, 17,
+        9, 21, 7, 3, 6, 13, 18, 11, 20, 19, 1],
+    [16, 15, 14, 13, 4, 22, 18, 19, 7, 1, 12,
+        17, 5, 10, 20, 3, 9, 21, 11, 2, 6, 8],
+    [20, 14, 21, 12, 15, 17, 4, 19, 13, 10, 11,
+        1, 16, 5, 18, 7, 8, 22, 9, 6, 3, 2],
+    [16, 14, 13, 2, 21, 10, 11, 4, 1, 22, 18,
+        12, 19, 5, 7, 8, 6, 3, 15, 20, 9, 17],
+    [18, 15, 9, 14, 12, 2, 8, 11, 22, 21, 16,
+        1, 6, 17, 5, 10, 19, 4, 20, 13, 3, 7],
+    [7, 3, 10, 14, 13, 21, 18, 6, 20, 4, 9, 8,
+        22, 15, 2, 1, 5, 12, 19, 17, 11, 16],
+    [18, 1, 13, 7, 16, 10, 14, 2, 19, 5, 21,
+        11, 22, 15, 8, 17, 20, 3, 4, 12, 6, 9],
+    [13, 2, 22, 5, 11, 21, 20, 14, 7, 10, 4,
+        9, 19, 18, 6, 3, 1, 8, 15, 12, 17, 16],
+    [14, 17, 21, 8, 2, 9, 6, 4, 5, 13, 22, 7,
+        15, 3, 1, 18, 16, 11, 10, 12, 20, 19],
+    [10, 22, 1, 12, 13, 18, 21, 20, 2, 14, 16,
+        7, 15, 3, 4, 17, 5, 19, 6, 8, 9, 11],
+    [10, 8, 9, 18, 12, 6, 1, 5, 20, 11, 17, 22,
+        16, 3, 13, 2, 15, 21, 14, 19, 7, 4],
+    [7, 17, 22, 5, 3, 10, 13, 18, 9, 1, 14, 15,
+        21, 19, 16, 12, 8, 6, 11, 20, 4, 2],
+    [2, 9, 21, 3, 4, 7, 1, 11, 16, 5, 20, 19,
+        18, 8, 17, 13, 10, 12, 15, 6, 14, 22],
+    [15, 12, 8, 4, 22, 13, 16, 17, 18, 3, 7,
+        5, 6, 1, 9, 11, 21, 10, 14, 20, 19, 2],
+    [15, 16, 2, 11, 17, 7, 5, 14, 20, 4, 21,
+        3, 10, 9, 12, 8, 13, 6, 18, 19, 22, 1],
+    [1, 13, 11, 3, 4, 21, 6, 14, 15, 22, 18,
+        9, 7, 5, 10, 20, 12, 16, 17, 8, 19, 2],
+    [14, 17, 22, 20, 8, 16, 5, 10, 1, 13, 2,
+        21, 12, 9, 4, 18, 3, 7, 6, 19, 15, 11],
+    [9, 17, 7, 4, 5, 13, 21, 18, 11, 3, 22, 1,
+        6, 16, 20, 14, 15, 10, 8, 2, 12, 19],
+    [13, 14, 5, 22, 19, 11, 9, 6, 18, 15, 8,
+        10, 7, 4, 17, 16, 3, 1, 12, 2, 21, 20],
+    [20, 5, 4, 14, 11, 1, 6, 16, 8, 22, 7, 3,
+        2, 12, 21, 19, 17, 13, 10, 15, 18, 9],
+    [3, 7, 14, 15, 6, 5, 21, 20, 18, 10, 4, 16,
+        19, 1, 13, 9, 8, 17, 11, 12, 22, 2],
     [13, 15, 17, 1, 22, 11, 3, 4, 7, 20, 14, 21, 9, 8, 2, 18, 16, 6, 10, 12, 5, 19]
 ]
 NUM_QUERIES = len(QUERY_ORDER[0])  # 22
@@ -101,7 +141,8 @@ def refresh_func1(conn, update_dir, stream, num_streams, verbose):
     try:
         if verbose:
             log("Running refresh function #1 in stream #%s" % stream)
-        file_nr = stream + 1  # generated files are named 1,2,3,... while streams are indexed 0,1,2,...
+        # generated files are named 1,2,3,... while streams are indexed 0,1,2,...
+        file_nr = stream + 1
         filepath_o = os.path.join(update_dir, "orders.tbl.u" + str(file_nr))
         filepath_l = os.path.join(update_dir, "lineitem.tbl.u" + str(file_nr))
         with open(filepath_o) as orders_file, open(filepath_l) as lineitem_file:
@@ -127,7 +168,8 @@ def refresh_func1(conn, update_dir, stream, num_streams, verbose):
                             insert_lineitem(li_cols, conn)
                             lineitem_line = lineitem_file.readline()
                             if lineitem_line:
-                                li_cols = tuple(lineitem_line.strip().split("|"))
+                                li_cols = tuple(
+                                    lineitem_line.strip().split("|"))
                             else:
                                 li_cols = None
                         if li_cols is not None:
@@ -157,7 +199,8 @@ def refresh_func2(conn, delete_dir, stream, num_streams, verbose):
         filepath = os.path.join(delete_dir, "delete." + str(file_nr))
         with open(filepath, 'r') as in_file:
             for ids in grouper(in_file, 100, ''):
-                query = "DELETE FROM orders WHERE O_ORDERKEY IN (%s)" % ", ".join([x.strip() for x in ids if x.strip()])
+                query = "DELETE FROM orders WHERE O_ORDERKEY IN (%s)" % ", ".join(
+                    [x.strip() for x in ids if x.strip()])
                 conn.executeQuery(query)
         conn.commit()
         return 0
@@ -184,14 +227,18 @@ def run_query_stream(conn, query_root, generated_query_dir, stream, num_streams,
         try:
             if verbose:
                 log("Running query #%s in stream #%s ..." % (order[i], stream))
-            filepath = os.path.join(query_root, generated_query_dir, str(order[i]) + ".sql")
+            filepath = os.path.join(
+                query_root, generated_query_dir, str(order[i]) + ".sql")
             result.startTimer()
             conn.executeQueryFromFile(filepath)
-            result.setMetric(QUERY_METRIC % (stream, order[i]), result.stopTimer())
+            result.setMetric(QUERY_METRIC %
+                             (stream, order[i]), result.stopTimer())
         except Exception as e:
-            log("unable to execute query %s in stream %s: %s" % (order[i], stream, e))
+            log("unable to execute query %s in stream %s: %s" %
+                (order[i], stream, e))
             return 1
     return 0
+
 
 def run_Explain_query_stream(conn, query_root, generated_query_dir, stream, num_streams, result, verbose):
     """
@@ -211,30 +258,33 @@ def run_Explain_query_stream(conn, query_root, generated_query_dir, stream, num_
         try:
             if verbose:
                 log("Running query #%s in stream #%s ..." % (order[i], stream))
-            filepath = os.path.join(query_root, generated_query_dir, str(order[i]) + ".sql")
+            filepath = os.path.join(
+                query_root, generated_query_dir, str(order[i]) + ".sql")
             with open(filepath) as f:
                 query_lines = f.readlines()
-         
-            
+
             # Remove the extra line from the query
-            query_lines = [line for line in query_lines if "-- using" not in line]
-            
+            query_lines = [
+                line for line in query_lines if "-- using" not in line]
+
             # Join the query lines back into a single string
             query = ''.join(query_lines)
             # if(order[i]==15 ):
             #    continue
-            explain_query = "EXPLAIN (ANALYZE,BUFFERS,FORMAT JSON) " + query  # Construct EXPLAIN command
-            explainResult=conn.explainQuery(explain_query)
+            # Construct EXPLAIN command
+            explain_query = "EXPLAIN (ANALYZE,BUFFERS,FORMAT JSON) " + query
+            explainResult = conn.explainQuery(explain_query)
             result.setExplainResult(order[i], explainResult)
-            
+
         except Exception as e:
-            log("unable to execute query %s in stream %s: %s" % (order[i], stream, e))
+            log("unable to execute query %s in stream %s: %s" %
+                (order[i], stream, e))
             return 1
     return 0
 
 
 def run_explain_query(query_root, update_dir, delete_dir, generated_query_dir, results_dir,
-                   host, database, run_timestamp, num_streams, verbose, read_only):
+                      host, database, run_timestamp, num_streams, verbose, read_only):
     """
 
     :param query_root: directory where generated SQL statements are stored
@@ -256,7 +306,7 @@ def run_explain_query(query_root, update_dir, delete_dir, generated_query_dir, r
         conn = pgdb.PGDB(host, database)
         result = r.Result("explain")
         stream = 3  # using static stream number for explain query
-        
+
         if run_Explain_query_stream(conn, query_root, generated_query_dir, stream, num_streams, result, verbose):
             return 1
         #
@@ -268,7 +318,8 @@ def run_explain_query(query_root, update_dir, delete_dir, generated_query_dir, r
     except Exception as e:
         log("unable to run power tests. DB connection failed: %s" % e)
         return 1
-    return 
+    return
+
 
 def run_Explain_query_stream_withCostOff(conn, query_root, generated_query_dir, stream, num_streams, result, verbose):
     """
@@ -288,31 +339,34 @@ def run_Explain_query_stream_withCostOff(conn, query_root, generated_query_dir, 
         try:
             if verbose:
                 log("Running query #%s in stream #%s ..." % (order[i], stream))
-            filepath = os.path.join(query_root, generated_query_dir, str(order[i]) + ".sql")
+            filepath = os.path.join(
+                query_root, generated_query_dir, str(order[i]) + ".sql")
             with open(filepath) as f:
                 query_lines = f.readlines()
-         
-            
+
             # Remove the extra line from the query
-            query_lines = [line for line in query_lines if "-- using" not in line]
-            
+            query_lines = [
+                line for line in query_lines if "-- using" not in line]
+
             # Join the query lines back into a single string
             query = ''.join(query_lines)
             result.setQuery(order[i], query)
             # if(order[i]==15 ):
             #    continue
-            explain_query = "EXPLAIN (COSTS OFF ,FORMAT JSON, SUMMARY OFF ) " + query  # Construct EXPLAIN command
-            expalineResult=conn.explainQuery(explain_query)
+            # Construct EXPLAIN command
+            explain_query = "EXPLAIN (COSTS OFF ,FORMAT JSON, SUMMARY OFF ) " + query
+            expalineResult = conn.explainQuery(explain_query)
             result.setExplainResult(order[i], expalineResult)
-            
+
         except Exception as e:
-            log("unable to execute query %s in stream %s: %s" % (order[i], stream, e))
+            log("unable to execute query %s in stream %s: %s" %
+                (order[i], stream, e))
             return 1
     return 0
 
 
 def run_explain_query_withCostOff(query_root, update_dir, delete_dir, generated_query_dir, results_dir,
-                   host, database, run_timestamp, num_streams, verbose, read_only):
+                                  host, database, run_timestamp, num_streams, verbose, read_only):
     """
 
     :param query_root: directory where generated SQL statements are stored
@@ -334,7 +388,7 @@ def run_explain_query_withCostOff(query_root, update_dir, delete_dir, generated_
         conn = pgdb.PGDB(host, database)
         result = r.Result("explain")
         stream = 3  # using static stream number for explain query
-        
+
         if run_Explain_query_stream_withCostOff(conn, query_root, generated_query_dir, stream, num_streams, result, verbose):
             return 1
         #
@@ -347,14 +401,7 @@ def run_explain_query_withCostOff(query_root, update_dir, delete_dir, generated_
     except Exception as e:
         log("unable to run power tests. DB connection failed: %s" % e)
         return 1
-    return 
-
-
-
-
-
-
-
+    return
 
 
 def run_power_test(query_root, update_dir, delete_dir, generated_query_dir, results_dir,
@@ -509,7 +556,8 @@ def get_json_files_from(path):
     :param path: path to a folder
     :return: list of all JSON files, identified by file extension .json, not by content
     """
-    json_files = [pos_json for pos_json in os.listdir(path) if pos_json.endswith('.json')]
+    json_files = [pos_json for pos_json in os.listdir(
+        path) if pos_json.endswith('.json')]
     json_files = [os.path.join(path, s) for s in json_files]
     return json_files
 
@@ -562,9 +610,9 @@ def get_timedelta_in_seconds(time_interval):
     (hours, minutes, sf) = time_interval.split(":")
     (seconds, fraction) = sf.split(".") if "." in sf else (0, 0)
     secs = int(hours) * 60 * 60 + \
-           int(minutes) * 60 + \
-           int(seconds) + \
-           int(fraction) / 1000000
+        int(minutes) * 60 + \
+        int(seconds) + \
+        int(fraction) / 1000000
     return secs
 
 
@@ -649,7 +697,8 @@ def get_throughput_size(results, scale_factor, num_streams):
     :param num_streams: number of streams
     :return: Troughput@Size
     """
-    throughput_size = ((num_streams * NUM_QUERIES) / ts(results)) * 3600 * scale_factor
+    throughput_size = ((num_streams * NUM_QUERIES) /
+                       ts(results)) * 3600 * scale_factor
     return throughput_size
 
 
@@ -697,7 +746,8 @@ def calc_metrics(results_dir, scale_factor, num_streams):
 
     timezone = tz.gettz(time.tzname[0])
     date_submitted = datetime.now(timezone)
-    res.setMetric("date_submitted", date_submitted.strftime("%Y-%m-%dT%H:%M:%S%z"))
+    res.setMetric("date_submitted", date_submitted.strftime(
+        "%Y-%m-%dT%H:%M:%S%z"))
     log("date_submitted = %s" % date_submitted.strftime("%Y-%m-%dT%H:%M:%S%z"))
 
     res.printMetrics("Metrics")
@@ -722,7 +772,8 @@ def prepare_result(in_dir, num_streams):
 
         throughput_dict = {}
         for i in range(1, num_streams + 1):
-            throughput_res = os.path.join(in_dir, 'throughput' + '/ThroughputQueryStream' + str(i) +'.json')
+            throughput_res = os.path.join(
+                in_dir, 'throughput' + '/ThroughputQueryStream' + str(i) + '.json')
             with open(throughput_res, 'r') as load_f:
                 tmp = (json.load(load_f))
             for s, v in tmp.items():

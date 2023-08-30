@@ -41,21 +41,23 @@ class PgBench(object):
         self._env = os.environ
         self._env['PATH'] = ':'.join([bin_path, self._env['PATH']])
 
-
     def _init(self, scale):
         """
         recreate the database (drop + create) and populate it with given scale
         """
 
         # initialize results for this dataset scale
-        
+
         log("recreating '%s' database" % (self._dbname,))
-        run_cmd(['dropdb', '-h', folders.SOCKET_PATH, '--if-exists', self._dbname], env=self._env)
-        run_cmd(['createdb', '-h', folders.SOCKET_PATH, self._dbname], env=self._env)
+        run_cmd(['dropdb', '-h', folders.SOCKET_PATH,
+                '--if-exists', self._dbname], env=self._env)
+        run_cmd(['createdb', '-h', folders.SOCKET_PATH,
+                self._dbname], env=self._env)
 
         log("initializing pgbench '%s' with scale %s" % (self._dbname, scale))
 
-        r = run_cmd(['pgbench', '-i', '-s', str(scale), '-h', folders.SOCKET_PATH, '-p', '5432', self._dbname], env=self._env, cwd=self._outdir)
+        r = run_cmd(['pgbench', '-i', '-s', str(scale), '-h', folders.SOCKET_PATH,
+                    '-p', '5432', self._dbname], env=self._env, cwd=self._outdir)
 
         with open(folders.LOG_PATH + '/pgbench_log.txt', 'w+') as file:
             file.write("pgbench log: \n")
@@ -63,7 +65,6 @@ class PgBench(object):
 
         # remember the init duration
         self._pgbench_init = r[2]
-        
 
     @staticmethod
     def _parse_results(data):
@@ -106,9 +107,11 @@ class PgBench(object):
 
         tps = -1
         if postgres_version >= 14:
-            r = re.search('tps = ([0-9]+\.[0-9]+) \(without initial connection time\)', data)
+            r = re.search(
+                'tps = ([0-9]+\.[0-9]+) \(without initial connection time\)', data)
         else:
-            r = re.search('tps = ([0-9]+\.[0-9]+) \(excluding connections establishing\)', data)
+            r = re.search(
+                'tps = ([0-9]+\.[0-9]+) \(excluding connections establishing\)', data)
         if r:
             tps = r.group(1)
 
@@ -122,7 +125,7 @@ class PgBench(object):
                 'clients': clients,
                 'threads': threads,
                 'latency': latency,
-                'statement_latencies' : statement_latencies,
+                'statement_latencies': statement_latencies,
                 'tps': tps}
 
     def check_config(self):
@@ -142,14 +145,17 @@ class PgBench(object):
             issues.append("psql not found in bin_dir='%s'" % (self._bin,))
 
         if type(self._duration) is not int:
-            issues.append("duration (%s) needs to be an integer" % self._duration)
+            issues.append("duration (%s) needs to be an integer" %
+                          self._duration)
         elif not self._duration >= 1:
             issues.append("duration (%s) needs to be >= 1" % (self._duration,))
 
         if type(self._iterations) is not int:
-            issues.append("iterations (%s) needs to be an integer" % self._duration)
+            issues.append("iterations (%s) needs to be an integer" %
+                          self._duration)
         elif not self._iterations >= 1:
-            issues.append("iterations (%s) needs to be >= 1" % (self._iterations,))
+            issues.append("iterations (%s) needs to be >= 1" %
+                          (self._iterations,))
 
         if type(self._clients) is not list:
             issues.append("clients (%s) needs to be an array" % self._clients)
@@ -172,11 +178,13 @@ class PgBench(object):
         else:
             rtag = "rw"
 
-        prefix = "pgbench-%s-%d-%d-%d-%s-" % (rtag, scale, duration, nclients, str(run))
+        prefix = "pgbench-%s-%d-%d-%d-%s-" % (rtag,
+                                              scale, duration, nclients, str(run))
 
         # aggregate on per second resolution
         if aggregate:
-            args.extend(['-l', '--aggregate-interval', '1', '--log-prefix', prefix])
+            args.extend(['-l', '--aggregate-interval',
+                        '1', '--log-prefix', prefix])
 
         if read_only:
             args.extend(['-S'])
@@ -184,7 +192,8 @@ class PgBench(object):
         args.extend([self._dbname])
 
         # do an explicit checkpoint before each run
-        run_cmd(['psql', '-h', folders.SOCKET_PATH, self._dbname, '-c', 'checkpoint'], env=self._env)
+        run_cmd(['psql', '-h', folders.SOCKET_PATH,
+                self._dbname, '-c', 'checkpoint'], env=self._env)
 
         log("pgbench: clients=%d, jobs=%d, aggregate=%s, read-only=%s, "
             "duration=%d" % (nclients, njobs, aggregate, read_only, duration))
@@ -200,7 +209,8 @@ class PgBench(object):
         return r
 
     def collect_pg_stat_statements(self):
-        conn = psycopg2.connect('host=%s dbname=%s' % (folders.SOCKET_PATH, self._dbname))
+        conn = psycopg2.connect('host=%s dbname=%s' %
+                                (folders.SOCKET_PATH, self._dbname))
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
         cur.execute(
@@ -247,18 +257,22 @@ class PgBench(object):
                 self._init(scale)
 
                 # start collectd collector before run
-                collectd_collector = CollectdCollector(folders.OUTPUT_PATH, DATABASE_NAME)
+                collectd_collector = CollectdCollector(
+                    folders.OUTPUT_PATH, DATABASE_NAME)
                 collectd_collector.start()
 
-                r = self._run(i, scale, self._duration, self._pgbench_init, self._read_only, clients, clients, True)
+                r = self._run(i, scale, self._duration, self._pgbench_init,
+                              self._read_only, clients, clients, True)
 
                 r.update({'collectd': collectd_collector.result()})
                 collectd_collector.stop()
 
                 # start pg_stat_statements collector after run
-                pg_stat_statements_collector = PgStatStatementsCollector(DATABASE_NAME)
+                pg_stat_statements_collector = PgStatStatementsCollector(
+                    DATABASE_NAME)
                 pg_stat_statements_collector.start()
-                r.update({'pg_stat_statements': pg_stat_statements_collector.result()})
+                r.update(
+                    {'pg_stat_statements': pg_stat_statements_collector.result()})
 
                 r.update({'iteration': i})
 

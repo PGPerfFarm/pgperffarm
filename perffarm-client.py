@@ -31,7 +31,7 @@ from path import create_path
 from pgtpch import tpch_runner
 
 # change the path accordingly
-from benchmarks.custom_queries.mybenchmark.parameters import * 
+from benchmarks.custom_queries.mybenchmark.parameters import *
 
 if __name__ == '__main__':
 
@@ -77,9 +77,9 @@ if __name__ == '__main__':
                     shutil.rmtree(folders.OUTPUT_PATH)
                     os.mkdir(folders.OUTPUT_PATH)
 
-                if (os.path.exists(folders.Tpch_OUTPUT_PATH )):
-                    shutil.rmtree(folders.Tpch_OUTPUT_PATH )
-                    os.mkdir(folders.Tpch_OUTPUT_PATH )
+                if (os.path.exists(folders.Tpch_OUTPUT_PATH)):
+                    shutil.rmtree(folders.Tpch_OUTPUT_PATH)
+                    os.mkdir(folders.Tpch_OUTPUT_PATH)
 
                 log("Existing installation found...")
 
@@ -96,10 +96,13 @@ if __name__ == '__main__':
                         file.write(a)
 
                     git_pull_end_time = datetime.now()
-                    git_pull_runtime = str(git_pull_end_time - git_pull_start_time)
+                    git_pull_runtime = str(
+                        git_pull_end_time - git_pull_start_time)
 
-                    latest_branch = (git.Repo(folders.REPOSITORY_PATH)).active_branch
-                    latest_commit = (git.Repo(folders.REPOSITORY_PATH)).head.commit
+                    latest_branch = (
+                        git.Repo(folders.REPOSITORY_PATH)).active_branch
+                    latest_commit = (
+                        git.Repo(folders.REPOSITORY_PATH)).head.commit
 
                     if (latest_commit != commit or latest_branch != branch):
                         log("Rebuilding repository to apply updates...")
@@ -138,19 +141,21 @@ if __name__ == '__main__':
                 if (os.path.exists(folders.OUTPUT_PATH)):
                     shutil.rmtree(folders.OUTPUT_PATH)
                     os.mkdir(folders.OUTPUT_PATH)
-                if (os.path.exists(folders.Tpch_OUTPUT_PATH )):
-                    shutil.rmtree(folders.Tpch_OUTPUT_PATH )
-                    os.mkdir(folders.Tpch_OUTPUT_PATH )
+                if (os.path.exists(folders.Tpch_OUTPUT_PATH)):
+                    shutil.rmtree(folders.Tpch_OUTPUT_PATH)
+                    os.mkdir(folders.Tpch_OUTPUT_PATH)
 
                 # and finally, clone
                 log("Cloning repository...")
                 git_clone_start_time = datetime.now()
 
                 try:
-                    a = git.Git(BRANCH_PATH).clone(GIT_URL, ['postgresql'], branch=branch_name)
+                    a = git.Git(BRANCH_PATH).clone(
+                        GIT_URL, ['postgresql'], branch=branch_name)
 
                     git_clone_end_time = datetime.now()
-                    git_clone_runtime = str(git_clone_end_time - git_clone_start_time)
+                    git_clone_runtime = str(
+                        git_clone_end_time - git_clone_start_time)
 
                     # and build
                     configure_runtime, build_runtime, install_runtime = build()
@@ -171,7 +176,8 @@ if __name__ == '__main__':
             # build and start a postgres cluster
 
             try:
-                cluster = PgCluster(folders.OUTPUT_PATH, bin_path=folders.BIN_PATH, data_path=folders.DATADIR_PATH)
+                cluster = PgCluster(
+                    folders.OUTPUT_PATH, bin_path=folders.BIN_PATH, data_path=folders.DATADIR_PATH)
 
                 # register one config for each benchmark (should be moved to a config file)
                 POSTGRES_CONFIG['listen_addresses'] = ''
@@ -182,42 +188,45 @@ if __name__ == '__main__':
 
                 system = os.popen("uname").readlines()[0].split()[0]
 
-                collectors.register('system', SystemCollector(folders.OUTPUT_PATH))
+                collectors.register(
+                    'system', SystemCollector(folders.OUTPUT_PATH))
 
-                pg_collector = PostgresCollector(folders.OUTPUT_PATH, dbname=DATABASE_NAME)
+                pg_collector = PostgresCollector(
+                    folders.OUTPUT_PATH, dbname=DATABASE_NAME)
                 collectors.register('postgres', pg_collector)
-                
 
-                if(mode=='pgbench_custom'):
-                    runner = BenchmarkRunner_custom(folders.OUTPUT_PATH, cluster, collectors)
+                if (mode == 'pgbench_custom'):
+                    runner = BenchmarkRunner_custom(
+                        folders.OUTPUT_PATH, cluster, collectors)
                 else:
-                    runner = BenchmarkRunner(folders.OUTPUT_PATH, cluster, collectors)
+                    runner = BenchmarkRunner(
+                        folders.OUTPUT_PATH, cluster, collectors)
 
                 if mode == 'pgbench':
                     # register the three tests we currently have
                     runner.register_benchmark('pgbench', PgBench)
 
-                    for config in PGBENCH_CONFIG:               
+                    for config in PGBENCH_CONFIG:
                         config['results_dir'] = folders.OUTPUT_PATH
 
                         runner.register_config('pgbench-basic', 'pgbench', branch, commit, dbname=DATABASE_NAME,
                                                bin_path=folders.BIN_PATH, postgres_config=POSTGRES_CONFIG, **config)
 
                 if mode == 'tpch':
-                    results_dir = {'results_dir':os.path.join(BRANCH_PATH, 'tpch_result')}
+                    results_dir = {'results_dir': os.path.join(
+                        BRANCH_PATH, 'tpch_result')}
                     runner.register_config('tpch', 'tpch', branch, commit, dbname=DATABASE_NAME,
                                            bin_path=folders.BIN_PATH, postgres_config=POSTGRES_CONFIG, **results_dir)
-                    
-                if mode=='pgbench_custom':
+
+                if mode == 'pgbench_custom':
                     # register the three tests we currently have
                     runner.register_benchmark('pgbench', PgBench_custom)
-                   
-                    for config in PGBENCH_CUSTOM_CONFIG:               
+
+                    for config in PGBENCH_CUSTOM_CONFIG:
                         config['results_dir'] = folders.OUTPUT_PATH
 
                         runner.register_config('pgbench-basic', 'pgbench', branch, commit, dbname=DATABASE_NAME,
                                                bin_path=folders.BIN_PATH, postgres_config=POSTGRES_CONFIG, **config)
-
 
                 # check configuration and report all issues
                 issues = runner.check()
@@ -278,23 +287,25 @@ if __name__ == '__main__':
                     upload(API_URL, folders.OUTPUT_PATH, MACHINE_SECRET, mode)
                     log("Run complete. Uploading...")
                 else:
-                    log("Run complete, check results in '%s'" % (folders.OUTPUT_PATH,))
+                    log("Run complete, check results in '%s'" %
+                        (folders.OUTPUT_PATH,))
             if mode == 'pgbench_custom':
                 if AUTOMATIC_UPLOAD:
                     upload(API_URL, folders.OUTPUT_PATH, MACHINE_SECRET, mode)
                     log("Run complete. Uploading...")
                 else:
-                    log("Run complete, check results in '%s'" % (folders.OUTPUT_PATH,))
-            
+                    log("Run complete, check results in '%s'" %
+                        (folders.OUTPUT_PATH,))
 
             if mode == 'tpch':
                 if AUTOMATIC_UPLOAD:
-                    upload(API_URL, results_dir['results_dir'], MACHINE_SECRET, mode)
+                    upload(
+                        API_URL, results_dir['results_dir'], MACHINE_SECRET, mode)
                     log("Run complete. Uploading...")
                 else:
-                    log("Run complete, check results in '%s'" % (results_dir['results_dir'],))
+                    log("Run complete, check results in '%s'" %
+                        (results_dir['results_dir'],))
         return
-
 
     # end of function
 

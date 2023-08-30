@@ -28,12 +28,14 @@ class BenchmarkRunner(object):
     def register_config(self, config_name, benchmark_name, branch, commit,
                         postgres_config, **kwargs):
 
-        self._configs.append({config_name: {'benchmark': benchmark_name, 'config': kwargs, 'branch': branch, 'commit': commit, 'postgres': postgres_config}})
+        self._configs.append({config_name: {'benchmark': benchmark_name, 'config': kwargs,
+                             'branch': branch, 'commit': commit, 'postgres': postgres_config}})
 
     def _check_config(self, config_name):
 
         if not isinstance(self._configs, list):
-            raise Exception("Configurations in settings_local.py must be a list.")
+            raise Exception(
+                "Configurations in settings_local.py must be a list.")
 
         issues = []
 
@@ -75,16 +77,17 @@ class BenchmarkRunner(object):
         r = {}
         r['pgbench_custom'] = []
         if mode == 'pgbench_custom':
-            self._cluster.start(config=self._configs[0]['pgbench-basic']['postgres'])
+            self._cluster.start(
+                config=self._configs[0]['pgbench-basic']['postgres'])
             dbname = self._configs[0]['pgbench-basic']['config']['dbname']
             socket_path = self._configs[0]['pgbench-basic']['postgres']['unix_socket_directories']
-    
 
         if dbname != 'postgres':
             connection = None
             try:
-                connection = psycopg2.connect("host='%s'  dbname='%s'" % (socket_path, 'postgres'))
-                connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT);
+                connection = psycopg2.connect(
+                    "host='%s'  dbname='%s'" % (socket_path, 'postgres'))
+                connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
                 with connection.cursor() as cursor:
                     cursor.execute("CREATE DATABASE %s" % dbname)
             finally:

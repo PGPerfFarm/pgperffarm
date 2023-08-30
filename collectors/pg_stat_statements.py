@@ -17,7 +17,8 @@ class PgStatStatementsCollector(object):
     def start(self):
         log("collecting pg_stat_statements")
 
-        conn = psycopg2.connect('host=%s dbname=%s' % (folders.SOCKET_PATH, self._dbname))
+        conn = psycopg2.connect('host=%s dbname=%s' %
+                                (folders.SOCKET_PATH, self._dbname))
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
         cur.execute(

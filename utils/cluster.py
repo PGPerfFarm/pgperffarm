@@ -17,9 +17,10 @@ class PgCluster(object):
 
         self._env = os.environ
         self._env['PATH'] = ':'.join([bin_path, self._env['PATH']])
- 
+
         self._env['PGDATABASE'] = "postgres"
-        self._env["LD_LIBRARY_PATH"] = os.path.join(folders.INSTALL_PATH, 'lib')
+        self._env["LD_LIBRARY_PATH"] = os.path.join(
+            folders.INSTALL_PATH, 'lib')
 
         self._options = ""
 
@@ -29,7 +30,7 @@ class PgCluster(object):
         with TemporaryFile() as strout:
             log("initializing cluster into '%s'" % (self._data,))
             r = call(['pg_ctl', '-D', self._data, 'init'], env=self._env,
-                 stdout=strout, stderr=STDOUT)
+                     stdout=strout, stderr=STDOUT)
 
     def _configure(self, config):
         'build options list to use with pg_ctl'
@@ -44,14 +45,13 @@ class PgCluster(object):
         """
         with TemporaryFile() as strout:
             log("killing postgres processes")
-            try: 
+            try:
                 pidfile = open(''.join([self._outdir, '/postmaster.pid']), 'r')
                 pid = pidfile.readline().strip()
                 run_cmd(['kill', '-9', pid])
                 log("found postmaster.pid")
             except FileNotFoundError:
                 log("postmaster.pid not found")
-
 
     def start(self, config, destroy=True):
         'init, configure and start the cluster'

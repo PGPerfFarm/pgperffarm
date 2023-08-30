@@ -47,7 +47,8 @@ def create_schema(query_root, host, db_name):
     try:
         conn = pgdb.PGDB(host, db_name)
         try:
-            conn.executeQueryFromFile(os.path.join(query_root, "create_tbl.sql"))
+            conn.executeQueryFromFile(
+                os.path.join(query_root, "create_tbl.sql"))
         except Exception as e:
             log("unable to run create tables. %s" % e)
             return 1
@@ -103,7 +104,8 @@ def index_tables(query_root, host, db_name):
     try:
         conn = pgdb.PGDB(host, db_name)
         try:
-            conn.executeQueryFromFile(os.path.join(query_root, "create_idx.sql"))
+            conn.executeQueryFromFile(
+                os.path.join(query_root, "create_idx.sql"))
             conn.commit()
         except Exception as e:
             log("unable to run index tables. %s" % e)

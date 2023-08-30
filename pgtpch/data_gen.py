@@ -28,13 +28,15 @@ def remove_final_delimiter(in_dir, out_dir, file_pattern):
 
 
 def make_dbgen():
-    p = subprocess.Popen(["make", "-f", os.path.join(DBGEN_PATH, "makefile.suite")], cwd=DBGEN_PATH)
+    p = subprocess.Popen(
+        ["make", "-f", os.path.join(DBGEN_PATH, "makefile.suite")], cwd=DBGEN_PATH)
     p.communicate()
     return p.returncode
 
 
 def clean_data(scale, num_streams):
-    p = subprocess.Popen([os.path.join(".", "dbgen"), "-vf", "-s", str(scale)], cwd=DBGEN_PATH)
+    p = subprocess.Popen(
+        [os.path.join(".", "dbgen"), "-vf", "-s", str(scale)], cwd=DBGEN_PATH)
     p.communicate()
     if not p.returncode:
         out_dir = os.path.join(OUTPUT_PATH, 'data')

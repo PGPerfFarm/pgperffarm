@@ -22,7 +22,8 @@ class CollectdCollector(object):
             os.mkdir(self._outdir)
         # Hard code all possible places a packager might install collectd.
         self._env = os.environ
-        self._env['PATH'] = ':'.join(['/usr/sbin/', '/sbin/', self._env['PATH']])
+        self._env['PATH'] = ':'.join(
+            ['/usr/sbin/', '/sbin/', self._env['PATH']])
 
         # get partition being used by postgres
         r = run_cmd(['df', '.'], cwd=BASE_PATH)
@@ -99,7 +100,8 @@ class CollectdCollector(object):
             for plugin in os.listdir(''.join([self._outdir, '/', name])):
                 collectd[name][plugin] = {}
                 for file in os.listdir(''.join([self._outdir, '/', name, '/', plugin])):
-                    csv_file = ''.join([self._outdir, '/', name, '/', plugin, '/', file])
+                    csv_file = ''.join(
+                        [self._outdir, '/', name, '/', plugin, '/', file])
                     with open(csv_file, 'r') as csv_file_open:
                         reader = csv.DictReader(csv_file_open)
                         rows = []
