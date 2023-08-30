@@ -224,7 +224,7 @@ def run_Explain_query_stream(conn, query_root, generated_query_dir, stream, num_
             # if(order[i]==15 ):
             #    continue
             explain_query = "EXPLAIN (ANALYZE,BUFFERS,FORMAT JSON) " + query  # Construct EXPLAIN command
-            explainResult=conn.explaineQuery(explain_query)
+            explainResult=conn.explainQuery(explain_query)
             result.setExplainResult(order[i], explainResult)
             
         except Exception as e:
@@ -302,7 +302,7 @@ def run_Explain_query_stream_withCostOff(conn, query_root, generated_query_dir, 
             # if(order[i]==15 ):
             #    continue
             explain_query = "EXPLAIN (COSTS OFF ,FORMAT JSON, SUMMARY OFF ) " + query  # Construct EXPLAIN command
-            expalineResult=conn.explaineQuery(explain_query)
+            expalineResult=conn.explainQuery(explain_query)
             result.setExplainResult(order[i], expalineResult)
             
         except Exception as e:

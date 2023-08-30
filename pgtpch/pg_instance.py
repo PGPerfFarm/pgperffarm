@@ -34,7 +34,7 @@ class PGDB:
         else:
             print("database has been closed")
             return 1
-    def explaineQuery(self, query):
+    def explainQuery(self, query):
         if self.__cursor__ is not None:
             self.__cursor__.execute(query)
             result=self.__cursor__.fetchall()

@@ -41,27 +41,27 @@ def upload(api_url, results_directory, token, mode):
 
     if mode == "tpch":
         upload_path = os.path.join(results_directory, 'metrics')
-        upload_path_expalainResults = os.path.join(results_directory, 'Explaintest')
-        explain_json_file = upload_path_expalainResults + "/Explain.json"
+        upload_path_explainResults = os.path.join(results_directory, 'Explaintest')
+        explain_json_file = upload_path_explainResults + "/Explain.json"
         with open(explain_json_file, 'r') as load_f:
             tmp_dict = (json.load(load_f))
         explain_dict = {}
         for s, v in tmp_dict.items():
             explain_dict[s] = v
-        load_dict["explaine_results"]=explain_dict
+        load_dict["explain_results"]=explain_dict
         try: 
-            explain_json_file = upload_path_expalainResults + "/Explain_costOff.json"
+            explain_json_file = upload_path_explainResults + "/Explain_costOff.json"
             with open(explain_json_file, 'r') as load_f:
                 tmp_dict = (json.load(load_f))
             explain_dict = {}
             for s, v in tmp_dict.items():
                 explain_dict[s] = v
-            load_dict["explaine_results_costOff"]=explain_dict
+            load_dict["explain_results_costOff"]=explain_dict
         except:
-            load_dict["explaine_results_costOff"]=None
+            load_dict["explain_results_costOff"]=None
             
         try:
-            query_file = upload_path_expalainResults + "/query_plans.json"
+            query_file = upload_path_explainResults + "/query_plans.json"
             with open(query_file, 'r') as load_f:
                 tmp_dict = (json.load(load_f))
             query_dict = {}
